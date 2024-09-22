@@ -17,18 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChartConfig } from "@/components/ui/chart";
-import { Timestamp } from "firebase/firestore";
 
-const chartConfig = {
-  visitors: {
-    label: "Ventas",
-  },
-  safari: {
-    label: "Ventas del día",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig;
+import { Timestamp } from "firebase/firestore";
 
 type Order = {
   status: string;

@@ -53,7 +53,7 @@ interface ChartData {
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const [chartData, setChartData] = React.useState<OrderChartData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [orders, setOrders] = React.useState<Order[]>([]);
 
@@ -112,7 +112,14 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   /*   const convertTimestampToDate = (timestamp: Timestamp): string => {
     return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
   };
+
  */
+
+  interface OrderChartData {
+    date: string; // Fecha en formato ISO
+    orders: number; // Cantidad de órdenes
+  }
+
   return (
     <div
       style={{
