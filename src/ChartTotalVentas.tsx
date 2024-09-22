@@ -46,7 +46,7 @@ const sumSalesLastMonth = (orders: Order[]) => {
 
   orders.forEach((order) => {
     const orderDate = order.date.toDate(); // Convertir el timestamp de Firebase a un objeto Date
-    const total = parseFloat(order.total); // Convertir total a número
+    const total = order.total; // Convertir total a número
 
     if (orderDate >= thirtyDaysAgo) {
       // Verificar si la orden es de los últimos 30 días
