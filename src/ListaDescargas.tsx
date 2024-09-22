@@ -5,6 +5,7 @@ import ChartUsers from "./ChartUsers";
 import { ChartTrakeo } from "./ChartTrakeo";
 import { ChartIsLogged } from "./ChartIsLogged";
 import ChartsOrders from "./ChartsOrders";
+import { Timestamp } from "firebase/firestore";
 
 export interface DeviceInfo {
   deviceInfo: {
