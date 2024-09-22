@@ -48,12 +48,12 @@ interface Order {
 
 // Define la interfaz para los datos del gráfico
 interface ChartData {
-  date: string; // Fecha en formato ISO
-  orders: number; // Cantidad de órdenes
+  label: string; // Use 'label' instead of 'date' for consistency
+  value: number; // Use 'value' instead of 'orders'
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [chartData, setChartData] = React.useState<OrderChartData[]>([]);
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [orders, setOrders] = React.useState<Order[]>([]);
 
@@ -87,13 +87,12 @@ const TrakeoAlimentosNaturales: React.FC = () => {
       const dataToDisplay: ChartData[] = Object.keys(groupedData)
         .filter((date) => new Date(date) >= lastMonth)
         .map((date) => ({
-          date,
-          orders: groupedData[date],
+          label: date, // Set 'label' to the date
+          value: groupedData[date], // Set 'value' to the number of orders
         }))
         .sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        ); // Ordenar por fecha
-
+          (a, b) => new Date(a.label).getTime() - new Date(b.label).getTime()
+        );
       setChartData(dataToDisplay);
       setLoading(false);
     };
@@ -114,11 +113,6 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   };
 
  */
-
-  interface OrderChartData {
-    date: string; // Fecha en formato ISO
-    orders: number; // Cantidad de órdenes
-  }
 
   return (
     <div
