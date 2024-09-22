@@ -30,6 +30,7 @@ const chartConfig = {
 
 // Define la interfaz para las órdenes
 import { Timestamp } from "firebase/firestore"; // Asegúrate de importar el tipo correctamente
+import { CircularProgress } from "@mui/material";
 
 interface Order {
   id: string;
@@ -108,7 +109,11 @@ const OrdersChart = () => {
       </CardHeader>
       <CardContent className="px-2 sm:p-6">
         {loading ? (
-          <div>Cargando...</div>
+          <div
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
+            <CircularProgress />
+          </div>
         ) : (
           <ChartContainer
             config={chartConfig}

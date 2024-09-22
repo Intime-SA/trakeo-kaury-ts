@@ -64,18 +64,19 @@ const TrakeoAlimentosNaturales: React.FC = () => {
             style={{
               marginLeft: isMobile ? "1rem" : "5rem",
 
-              fontSize: isMobile ? "1rem" : "1.5rem",
+              fontSize: isMobile ? "0.7rem" : "1.5rem",
               fontWeight: "bold",
-              marginRight: "-1rem",
+              marginRight: "0rem",
             }}
           >
             {" "}
-            Seguimiento de Dispositivos |
+            Seguimiento Usuarios: Kaury
+            <span style={{ marginLeft: "0.9rem" }}>|</span>
           </h1>
           <img
             src="https://firebasestorage.googleapis.com/v0/b/mayoristakaurymdp.appspot.com/o/Pesta%C3%B1aLogo%2FSinFondoLogo.png?alt=media&token=8a59df40-df50-4c65-8677-43a9fee55622"
             alt="atlantics.dev"
-            style={{ width: "100px" }}
+            style={{ width: isMobile ? "50px" : "100px" }}
           />
         </div>
 

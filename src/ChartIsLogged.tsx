@@ -31,7 +31,7 @@ import {
 
 // Interfaz para los datos de actividad de usuario
 interface UserActivity {
-  dateTime: string;
+  dateTime: string; // Debe estar en formato ISO
   ip: string;
   isLogged: boolean;
   location: string;
@@ -74,8 +74,8 @@ export function ChartIsLogged() {
     });
 
     return [
-      { status: "Logged In", count: groupedData.loggedIn },
-      { status: "Logged Out", count: groupedData.loggedOut },
+      { status: "Usuario", count: groupedData.loggedIn },
+      { status: "Anonimo", count: groupedData.loggedOut },
     ];
   };
 
@@ -88,8 +88,19 @@ export function ChartIsLogged() {
           (doc) => doc.data() as UserActivity
         );
 
+        // Filtrar datos para las últimas 24 horas
+        const now = new Date();
+        const twentyFourHoursAgo = new Date(
+          now.getTime() - 24 * 60 * 60 * 1000
+        ); // 24 horas atrás
+
+        const recentData = rawData.filter((entry) => {
+          const entryDate = new Date(entry.dateTime);
+          return entryDate >= twentyFourHoursAgo && entryDate <= now;
+        });
+
         // Procesar los datos para agrupar por estado de "isLogged"
-        const processedData = processUserData(rawData);
+        const processedData = processUserData(recentData);
         setChartData(processedData);
       } catch (error) {
         console.error("Error fetching data from Firestore:", error);
@@ -104,7 +115,8 @@ export function ChartIsLogged() {
       <CardHeader>
         <CardTitle>Estado de Sesión de Usuarios</CardTitle>
         <CardDescription>
-          Usuarios agrupados por si están logueados o no
+          Usuarios navegan Logeados o Anonimos{" "}
+          <span style={{ fontWeight: "100" }}> - (ultimas 24hs)</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -123,7 +135,7 @@ export function ChartIsLogged() {
                 <Cell
                   key={item.status}
                   fill={
-                    item.status === "Logged In"
+                    item.status === "Usuario"
                       ? "hsl(var(--chart-1))"
                       : "hsl(var(--chart-2))"
                   }
@@ -135,7 +147,8 @@ export function ChartIsLogged() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Tendencia positiva este mes <TrendingUp className="h-4 w-4" />
+          Usuario anonimo se traduce en cliente nuevo
+          <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
           Mostrando el estado de sesión de usuarios en dos grupos

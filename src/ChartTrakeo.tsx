@@ -16,7 +16,7 @@ import {
 import { ChartContainer } from "@/components/ui/chart";
 
 interface UserActivity {
-  dateTime: string;
+  dateTime: string; // Debe estar en formato ISO
   ip: string;
   isLogged: boolean;
   location: string;
@@ -87,9 +87,17 @@ export function ChartTrakeo() {
 
   const processLocationData = (data: UserActivity[]): ChartData[] => {
     const locationCounts: Record<string, number> = {};
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 horas atrás
+
+    // Filtrar datos para las últimas 24 horas
+    const recentData = data.filter((entry) => {
+      const entryDate = new Date(entry.dateTime);
+      return entryDate >= twentyFourHoursAgo && entryDate <= now;
+    });
 
     // Procesar los datos para contar la cantidad de registros por localidad
-    data.forEach((entry) => {
+    recentData.forEach((entry) => {
       const { location } = entry;
 
       if (location) {
@@ -116,7 +124,8 @@ export function ChartTrakeo() {
       <CardHeader>
         <CardTitle>Estadísticas por Localidad</CardTitle>
         <CardDescription>
-          Distribución de usuarios por localidad
+          Distribución de usuarios por localidad -{" "}
+          <span style={{ fontWeight: "100" }}>(ultimas 24hs)</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -139,8 +148,7 @@ export function ChartTrakeo() {
                   const { location, count } = payload[0].payload;
                   return (
                     <div className="custom-tooltip">
-                      <p>{`${count}, ${location}`}</p>{" "}
-                      {/* Mostrar count y location completa en el tooltip */}
+                      <p>{`${count}, ${location}`}</p>
                     </div>
                   );
                 }
@@ -157,7 +165,7 @@ export function ChartTrakeo() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Estadísticas basadas en la localidad de los usuarios
+          Estadísticas basadas en la localidad de los usuarios{" "}
           <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
