@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -17,18 +17,40 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_APIKEY,
-  authDomain: import.meta.env.VITE_AUTHDOMAIN,
-  projectId: import.meta.env.VITE_PROJECTID,
-  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
-  appId: import.meta.env.VITE_APPID,
+  apiKey: "AIzaSyC82Xmj6-MfN1lpnmabdANaU4c9ZNjpPh4",
+  authDomain: "mayoristakaurymdp.firebaseapp.com",
+  projectId: "mayoristakaurymdp",
+  storageBucket: "mayoristakaurymdp.appspot.com",
+  messagingSenderId: "1059207647185",
+  appId: "1:1059207647185:web:e5c8298f7225cd48585af0",
+  measurementId: "G-J431P6P08T",
+};
+
+const firebaseConfigTrakeo = {
+  apiKey: "AIzaSyCIltOqQVKjLm6m4ifQLp0tfolIV0Wjb8w",
+  authDomain: "trakeo-93a6e.firebaseapp.com",
+  projectId: "trakeo-93a6e",
+  storageBucket: "trakeo-93a6e.appspot.com",
+  messagingSenderId: "900513744928",
+  appId: "1:900513744928:web:dccd3b5e6cd9a68656d445",
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app); // Autenticación para la app principal
 export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
+
+// Inicializar la segunda app (Trakeo) con un nombre único
+const appTrakeo = !getApps().find((app) => app.name === "trakeo")
+  ? initializeApp(firebaseConfigTrakeo, "trakeo")
+  : getApp("trakeo");
+
+// Base de datos de la app secundaria (Trakeo)
+export const db2 = initializeFirestore(appTrakeo, {
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager(),
   }),

@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import Avatar from "@mui/material/Avatar";
-import { Chart } from "./Chart";
-import { Switch } from "@/components/ui/switch"; // Asegúrate de que la ruta sea correcta
-// Asegúrate de que la ruta sea correcta
+import { Switch } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
+import ChartUsers from "./ChartUsers";
+import { ChartTrakeo } from "./ChartTrakeo";
+import { ChartIsLogged } from "./ChartIsLogged";
+import ChartsOrders from "./ChartsOrders";
 
 export interface DeviceInfo {
   deviceInfo: {
@@ -36,11 +32,11 @@ const TrakeoAlimentosNaturales: React.FC = () => {
     return savedTheme === "dark";
   });
 
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   useEffect(() => {
     const fetchDevices = async () => {
-      const querySnapshot = await getDocs(
-        collection(db, "trakeoAlimentosNaturales")
-      );
+      const querySnapshot = await getDocs(collection(db, "users"));
       const deviceData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -75,95 +71,70 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#2E2E2E] p-4 min-h-screen">
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        padding: "1rem",
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
       <div
         style={{
           width: "100%",
           display: "flex",
-          justifyContent: "flex-end",
-          paddingRight: "2rem",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: "2rem",
+          marginBottom: "2rem",
         }}
       >
-        <Switch
-          id="dark-mode"
-          checked={isDarkMode}
-          onCheckedChange={() => setIsDarkMode((prev) => !prev)}
-        />
-      </div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg font-bold text-black dark:text-white">
-          Seguimiento de Dispositivos
-        </h1>
-        <div>
+        <div style={{ width: "100%", display: "flex", alignItems: "center" }}>
+          <h1
+            style={{
+              marginLeft: isMobile ? "1rem" : "5rem",
+
+              fontSize: isMobile ? "1rem" : "1.5rem",
+              fontWeight: "bold",
+              marginRight: "-1rem",
+            }}
+          >
+            {" "}
+            Seguimiento de Dispositivos |
+          </h1>
           <img
-            alt="Your Company"
             src="https://firebasestorage.googleapis.com/v0/b/mayoristakaurymdp.appspot.com/o/Pesta%C3%B1aLogo%2FSinFondoLogo.png?alt=media&token=8a59df40-df50-4c65-8677-43a9fee55622"
-            style={{ width: "150px" }}
-            className="block"
+            alt="atlantics.dev"
+            style={{ width: "100px" }}
+          />
+        </div>
+
+        <div style={{ marginRight: isMobile ? "0rem" : "5rem" }}>
+          <Switch
+            checked={isDarkMode}
+            onChange={() => setIsDarkMode((prev) => !prev)}
           />
         </div>
       </div>
-
+      <div>
+        <ChartsOrders />
+      </div>
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-start",
-          marginBottom: "1rem",
+          justifyContent: isMobile ? "center" : "space-around",
+          flexDirection: isMobile ? "column" : "row",
           maxHeight: "800px",
           width: "100%",
+          marginTop: isMobile ? "15rem" : "2rem",
         }}
       >
-        <Chart devices={devices} />
-      </div>
-
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {devices.map((device) => (
-          <Card key={device.id} className="shadow-md">
-            <CardHeader>
-              <div className="flex flex-col items-center justify-center gap-3">
-                <Avatar
-                  sx={{
-                    bgcolor: "#9C27B0",
-                    width: 56,
-                    height: 56,
-                    fontSize: 24,
-                  }}
-                >
-                  {device.email.charAt(0).toUpperCase()}
-                </Avatar>
-                <div className="text-center">
-                  <CardTitle className="text-base">{device.name}</CardTitle>
-                  <CardDescription className="text-xs">
-                    {device.email}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                IP: {device.ipAddress}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Ubicación: {device.location}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Dispositivo: {device.deviceInfo.deviceType}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Resolución: {device.deviceInfo.screenResolution}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Idioma: {device.deviceInfo.language}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                <time dateTime={device.timestamp?.toDate().toISOString()}>
-                  {convertTimestampToDate(device.timestamp)}
-                </time>
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+        <ChartUsers />
+        <ChartTrakeo />
+        <ChartIsLogged />
       </div>
     </div>
   );
