@@ -24,11 +24,8 @@ export interface DeviceInfo {
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const savedTheme = localStorage.getItem("theme");
-    // Inicializa en 'dark' si no hay un tema guardado
-    return savedTheme === "dark" || !savedTheme; // Cambia aquí para iniciar en 'dark'
-  });
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+
   const isMobile = useMediaQuery("(max-width:600px)");
 
   useEffect(() => {
