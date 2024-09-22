@@ -7,8 +7,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/trakeo" element={<TrakeoAlimentosNaturales />} />
+        <Route path="/" element={<TrakeoAlimentosNaturales />} />
       </Routes>
     </Router>
   );
