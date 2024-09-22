@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, Timestamp } from "firebase/firestore";
-import { db } from "./firebaseConfig";
-import Avatar from "@mui/material/Avatar";
 import { Switch } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import ChartUsers from "./ChartUsers";
@@ -26,7 +23,6 @@ export interface DeviceInfo {
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -35,41 +31,14 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   const isMobile = useMediaQuery("(max-width:600px)");
 
   useEffect(() => {
-    const fetchDevices = async () => {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const deviceData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          deviceInfo: {
-            deviceType: data.deviceInfo.deviceType,
-            language: data.deviceInfo.language,
-            screenResolution: data.deviceInfo.screenResolution,
-            userAgent: data.deviceInfo.userAgent,
-          },
-          email: data.email,
-          ipAddress: data.ipAddress,
-          location: data.location,
-          name: data.name,
-          telefono: data.telefono,
-          timestamp: data.timestamp,
-        } as DeviceInfo;
-      });
-      setDevices(deviceData);
-    };
-
-    fetchDevices();
-  }, []);
-
-  useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
 
-  const convertTimestampToDate = (timestamp: Timestamp): string => {
+  /*   const convertTimestampToDate = (timestamp: Timestamp): string => {
     return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
   };
-
+ */
   return (
     <div
       style={{

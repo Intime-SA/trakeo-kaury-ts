@@ -14,9 +14,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
+// Configuración del gráfico
 const chartConfig = {
   views: {
     label: "Órdenes ",
@@ -27,48 +28,68 @@ const chartConfig = {
   },
 };
 
-// Define el tipo para las órdenes
+// Define la interfaz para las órdenes
+import { Timestamp } from "firebase/firestore"; // Asegúrate de importar el tipo correctamente
+
 interface Order {
   id: string;
-  date: string; // Asegúrate de que este tipo sea correcto según tu estructura
-  // Agrega aquí otras propiedades según sea BA
+  date: Timestamp; // Usar el tipo Timestamp de Firestore
+  canalVenta: string;
+  clienteId: string;
+  lastState: string;
+  note: string;
+  numberOrder: number;
+  status: string;
+  total: number;
+  // Agrega aquí otras propiedades según sea necesario
+}
+
+// Define la interfaz para los datos del gráfico
+interface ChartData {
+  date: string; // Fecha en formato ISO
+  orders: number; // Cantidad de órdenes
 }
 
 const OrdersChart = () => {
-  const [chartData, setChartData] = React.useState<
-    { date: string; orders: number }[]
-  >([]);
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchOrders = async () => {
       const querySnapshot = await getDocs(collection(db, "userOrders"));
-      const ordersData: Order[] = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as Order[];
+      const ordersData: Order[] = querySnapshot.docs.map(
+        (doc: QueryDocumentSnapshot) => ({
+          ...doc.data(),
+          id: doc.id,
+        })
+      ) as Order[];
 
       console.log(ordersData);
 
       // Filtrar y agrupar por día
-      const groupedData = ordersData.reduce((acc, order) => {
-        const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
-        acc[date] = (acc[date] || 0) + 1; // Contar órdenes por día
-        return acc;
-      }, {});
+      const groupedData = ordersData.reduce(
+        (acc: Record<string, number>, order) => {
+          const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
+          acc[date] = (acc[date] || 0) + 1; // Contar órdenes por día
+          return acc;
+        },
+        {}
+      );
 
       // Convertir a array y filtrar los últimos 30 días
       const today = new Date();
       const lastMonth = new Date(today);
       lastMonth.setDate(today.getDate() - 30);
 
-      const dataToDisplay = Object.keys(groupedData)
+      const dataToDisplay: ChartData[] = Object.keys(groupedData)
         .filter((date) => new Date(date) >= lastMonth)
         .map((date) => ({
           date,
           orders: groupedData[date],
         }))
-        .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordenar por fecha
+        .sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        ); // Ordenar por fecha
 
       setChartData(dataToDisplay);
       setLoading(false);
@@ -114,7 +135,7 @@ const OrdersChart = () => {
               <ChartTooltip
                 content={<ChartTooltipContent nameKey="orders" />}
               />
-              <Bar dataKey="orders" fill="#4a90e2" /> // Azul claro
+              <Bar dataKey="orders" fill="#4a90e2" /> {/* Azul claro */}
             </BarChart>
           </ChartContainer>
         )}
