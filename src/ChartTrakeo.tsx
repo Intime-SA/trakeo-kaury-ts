@@ -165,7 +165,7 @@ export function ChartTrakeo() {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Estadísticas basadas en la localidad de los usuarios{" "}
+          Estadísticas basadas en visitas a la WEB{" "}
           <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
