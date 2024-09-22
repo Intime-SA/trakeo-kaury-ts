@@ -5,7 +5,17 @@ import ChartUsers from "./ChartUsers";
 import { ChartTrakeo } from "./ChartTrakeo";
 import { ChartIsLogged } from "./ChartIsLogged";
 import ChartsOrders from "./ChartsOrders";
-import { Timestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  QueryDocumentSnapshot,
+  Timestamp,
+} from "firebase/firestore";
+import { ChartVisitas } from "./ChartVisitas";
+import { db } from "./firebaseConfig";
+import { ChartTotalVentas } from "./ChartTotalVentas";
+import { ChartTotalHistorico } from "./ChartTotalHistorico";
+import { ChartVentasDiarias } from "./ChartVentasDiarias";
 
 export interface DeviceInfo {
   deviceInfo: {
@@ -23,7 +33,73 @@ export interface DeviceInfo {
   timestamp: Timestamp;
 }
 
+interface Order {
+  id: string;
+  date: Timestamp; // Usar el tipo Timestamp de Firestore
+  canalVenta: string;
+  clienteId: string;
+  lastState: string;
+  note: string;
+  numberOrder: number;
+  status: string;
+  total: number;
+  // Agrega aquí otras propiedades según sea necesario
+}
+
+// Define la interfaz para los datos del gráfico
+interface ChartData {
+  date: string; // Fecha en formato ISO
+  orders: number; // Cantidad de órdenes
+}
+
 const TrakeoAlimentosNaturales: React.FC = () => {
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [orders, setOrders] = React.useState<Order[]>([]);
+
+  React.useEffect(() => {
+    const fetchOrders = async () => {
+      const querySnapshot = await getDocs(collection(db, "userOrders"));
+      const ordersData: Order[] = querySnapshot.docs.map(
+        (doc: QueryDocumentSnapshot) => ({
+          ...doc.data(),
+          id: doc.id,
+        })
+      ) as Order[];
+      setOrders(ordersData);
+      console.log(ordersData);
+
+      // Filtrar y agrupar por día
+      const groupedData = ordersData.reduce(
+        (acc: Record<string, number>, order) => {
+          const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
+          acc[date] = (acc[date] || 0) + 1; // Contar órdenes por día
+          return acc;
+        },
+        {}
+      );
+
+      // Convertir a array y filtrar los últimos 30 días
+      const today = new Date();
+      const lastMonth = new Date(today);
+      lastMonth.setDate(today.getDate() - 30);
+
+      const dataToDisplay: ChartData[] = Object.keys(groupedData)
+        .filter((date) => new Date(date) >= lastMonth)
+        .map((date) => ({
+          date,
+          orders: groupedData[date],
+        }))
+        .sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        ); // Ordenar por fecha
+
+      setChartData(dataToDisplay);
+      setLoading(false);
+    };
+
+    fetchOrders();
+  }, []);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -87,8 +163,21 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           />
         </div>
       </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: isMobile ? "column" : "row",
+        }}
+      >
+        <ChartTotalHistorico orders={orders} />
+        <ChartTotalVentas orders={orders} />
+        <ChartVentasDiarias orders={orders} />
+      </div>
       <div>
-        <ChartsOrders />
+        <ChartsOrders chartData={chartData} loading={loading} />
+        <ChartVisitas />
       </div>
       <div
         style={{
@@ -101,8 +190,19 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         }}
       >
         <ChartUsers />
-        <ChartTrakeo />
+
         <ChartIsLogged />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: isMobile ? "center" : "flex-start",
+          flexDirection: isMobile ? "column" : "row",
+          width: "100%",
+          marginTop: isMobile ? "15rem" : "2rem",
+        }}
+      >
+        <ChartTrakeo />
       </div>
     </div>
   );

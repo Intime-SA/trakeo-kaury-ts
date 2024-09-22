@@ -14,8 +14,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
-import { db } from "./firebaseConfig";
 
 // Configuración del gráfico
 const chartConfig = {
@@ -28,77 +26,19 @@ const chartConfig = {
   },
 };
 
-// Define la interfaz para las órdenes
-import { Timestamp } from "firebase/firestore"; // Asegúrate de importar el tipo correctamente
 import { CircularProgress } from "@mui/material";
 
-interface Order {
-  id: string;
-  date: Timestamp; // Usar el tipo Timestamp de Firestore
-  canalVenta: string;
-  clienteId: string;
-  lastState: string;
-  note: string;
-  numberOrder: number;
-  status: string;
-  total: number;
-  // Agrega aquí otras propiedades según sea necesario
-}
-
-// Define la interfaz para los datos del gráfico
 interface ChartData {
-  date: string; // Fecha en formato ISO
-  orders: number; // Cantidad de órdenes
+  label: string; // O cualquier otro campo que esté en los datos de tu gráfico
+  value: number;
 }
 
-const OrdersChart = () => {
-  const [chartData, setChartData] = React.useState<ChartData[]>([]);
-  const [loading, setLoading] = React.useState(true);
+interface ChildComponentProps {
+  chartData: ChartData[];
+  loading: boolean;
+}
 
-  React.useEffect(() => {
-    const fetchOrders = async () => {
-      const querySnapshot = await getDocs(collection(db, "userOrders"));
-      const ordersData: Order[] = querySnapshot.docs.map(
-        (doc: QueryDocumentSnapshot) => ({
-          ...doc.data(),
-          id: doc.id,
-        })
-      ) as Order[];
-
-      console.log(ordersData);
-
-      // Filtrar y agrupar por día
-      const groupedData = ordersData.reduce(
-        (acc: Record<string, number>, order) => {
-          const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
-          acc[date] = (acc[date] || 0) + 1; // Contar órdenes por día
-          return acc;
-        },
-        {}
-      );
-
-      // Convertir a array y filtrar los últimos 30 días
-      const today = new Date();
-      const lastMonth = new Date(today);
-      lastMonth.setDate(today.getDate() - 30);
-
-      const dataToDisplay: ChartData[] = Object.keys(groupedData)
-        .filter((date) => new Date(date) >= lastMonth)
-        .map((date) => ({
-          date,
-          orders: groupedData[date],
-        }))
-        .sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        ); // Ordenar por fecha
-
-      setChartData(dataToDisplay);
-      setLoading(false);
-    };
-
-    fetchOrders();
-  }, []);
-
+const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
   return (
     <Card style={{ width: "90vw" }}>
       <CardHeader>
