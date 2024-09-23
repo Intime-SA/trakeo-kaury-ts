@@ -131,7 +131,7 @@ export function ChartTrakeo() {
   const chartHeight = Math.max(300, chartData.length * 40); // Altura mínima de 300px, o 40px por cada dato
 
   return (
-    <Card className="w-full mb-4">
+    <Card className="w-full mb-4" style={{ marginTop: "1rem" }}>
       <CardHeader>
         <CardTitle>Estadísticas por Localidad</CardTitle>
         <CardDescription>

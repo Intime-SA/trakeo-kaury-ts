@@ -82,7 +82,10 @@ export function ChartVentasDiarias({ orders }: Props) {
   return (
     <Card
       className="flex flex-col"
-      style={{ minWidth: "375px", margin: "1rem" }}
+      style={{
+        width: "100%",
+        marginTop: "1rem",
+      }}
     >
       <CardHeader className="items-center pb-0">
         <CardTitle>Ordenes de venta</CardTitle>

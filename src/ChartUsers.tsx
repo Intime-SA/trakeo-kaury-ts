@@ -18,6 +18,7 @@ import {
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { CircularProgress } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 
 interface User {
   datosEnvio?: {
@@ -33,6 +34,8 @@ export const ChartUsers: React.FC = () => {
     totalUsers: 0,
     usersByProvince: {},
   });
+
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const [loading, setLoading] = React.useState<boolean>(true); // Estado de carga
 
@@ -92,7 +95,13 @@ export const ChartUsers: React.FC = () => {
   } satisfies ChartConfig;
 
   return (
-    <Card style={{ width: "100%", maxWidth: "375px", marginBottom: "1rem" }}>
+    <Card
+      style={{
+        width: "100%",
+        marginTop: "1rem",
+        marginRight: isMobile ? "0rem" : "1rem",
+      }}
+    >
       <CardHeader className="items-center pb-0">
         <CardTitle>Usuarios por Provincia</CardTitle>
         <CardDescription>

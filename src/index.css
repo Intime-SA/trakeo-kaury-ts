@@ -54,6 +54,12 @@
     --color-santa-cruz: #00ced1; /* Color para Santa Cruz */
     --color-tierra-del-fuego: #ff69b4; /* Color para Tierra del Fuego */
     --color-tierra-del-fuego: grey; /* Color para Tierra del Fuego */
+
+    --color-mobile: #42a5f5; /* Color para usuarios móviles */
+    --color-desktop: #7e57c2; /* Color para usuarios de escritorio */
+    --chart-1: 207, 76%, 53%; /* HSL para el color móvil */
+    --chart-2: 262, 52%, 47%; /* HSL para el color escritorio */
+
     /* Agrega más provincias y sus colores si es necesario */
   }
 
@@ -82,6 +88,11 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --color-mobile: #42a5f5; /* Color para usuarios móviles */
+    --color-desktop: #7e57c2; /* Color para usuarios de escritorio */
+    --chart-1: 207, 76%, 53%; /* HSL para el color móvil */
+    --chart-2: 262, 52%, 47%; /* HSL para el color escritorio */
   }
 }
 

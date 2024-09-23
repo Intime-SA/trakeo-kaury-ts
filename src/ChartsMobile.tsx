@@ -91,7 +91,11 @@ export function ChartsMobile() {
   return (
     <Card
       className="flex flex-col"
-      style={{ maxWidth: isMobile ? "100" : "375px" }}
+      style={{
+        width: "100%",
+        marginTop: "1rem",
+        marginRight: isMobile ? "0rem" : "1rem",
+      }}
     >
       <CardHeader className="items-center pb-0">
         <CardTitle>Mobile vs Desktop Users</CardTitle>

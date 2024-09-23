@@ -176,7 +176,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
 
       <div
         style={{
-          width: "100vw",
+          width: "100%",
           display: "flex",
           justifyContent: "center",
           flexDirection: isMobile ? "column" : "row",
@@ -196,12 +196,10 @@ const TrakeoAlimentosNaturales: React.FC = () => {
       </div>
       <div
         style={{
-          display: "flex",
-          justifyContent: isMobile ? "center" : "space-around",
-          flexDirection: isMobile ? "column" : "row",
-          maxHeight: "800px",
           width: "100%",
-          marginTop: isMobile ? "15rem" : "2rem",
+          display: "flex",
+          justifyContent: isMobile ? "center" : "space-between",
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
         <ChartUsers />
@@ -214,7 +212,6 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           justifyContent: isMobile ? "center" : "flex-start",
           flexDirection: isMobile ? "column" : "row",
           width: "100%",
-          marginTop: isMobile ? "15rem" : "2rem",
         }}
       >
         <ChartTrakeo />

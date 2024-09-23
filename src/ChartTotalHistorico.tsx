@@ -86,9 +86,9 @@ export function ChartTotalHistorico({ orders }: Props) {
     <Card
       className="flex flex-col"
       style={{
-        width: "50%",
-        margin: "1rem",
-        marginLeft: "1rem",
+        width: "100%",
+        marginTop: "1rem",
+        marginRight: isMobile ? "0rem" : "1rem",
       }}
     >
       <CardHeader className="items-center pb-0">
