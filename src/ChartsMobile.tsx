@@ -15,6 +15,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 interface UserActivityData {
   isMobile: boolean;
   ip: string;
+  dateTime: string; // Asegúrate de tener este campo en tus documentos
 }
 
 const defaultData = [
@@ -28,6 +29,7 @@ const chartConfig = {
   desktop: { label: "Desktop", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
+// Función para obtener datos desde Firestore
 const fetchTrackingData = async (): Promise<UserActivityData[]> => {
   try {
     const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
@@ -36,6 +38,17 @@ const fetchTrackingData = async (): Promise<UserActivityData[]> => {
     console.error("Error fetching data:", error);
     return [];
   }
+};
+
+// Función para filtrar por las últimas 24 horas
+const filterLast24Hours = (data: UserActivityData[]): UserActivityData[] => {
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  return data.filter((record) => {
+    const recordDate = new Date(record.dateTime);
+    return recordDate >= yesterday; // Filtra los registros que son de las últimas 24 horas
+  });
 };
 
 export function ChartsMobile() {
@@ -50,13 +63,16 @@ export function ChartsMobile() {
       try {
         const data = await fetchTrackingData();
 
+        // Filtrar los datos para obtener solo los de las últimas 24 horas
+        const filteredData = filterLast24Hours(data);
+
         const userCount: { Mobile: number; Desktop: number } = {
           Mobile: 0,
           Desktop: 0,
         };
         const countedIPs = new Set<string>(); // Conjunto para rastrear IPs contadas
 
-        data.forEach((record) => {
+        filteredData.forEach((record) => {
           const { isMobile, ip } = record;
 
           // Solo sumar si la IP no ha sido contada antes
@@ -107,8 +123,8 @@ export function ChartsMobile() {
       }}
     >
       <CardHeader className="items-center pb-0">
-        <CardTitle>Mobile vs Desktop Users</CardTitle>
-        <CardDescription>Data for September 2024</CardDescription>
+        <CardTitle>Mobile vs Computadora</CardTitle>
+        <CardDescription>Datos ultimas 24hs</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
