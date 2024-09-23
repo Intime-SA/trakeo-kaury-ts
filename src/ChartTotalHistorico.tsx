@@ -99,7 +99,6 @@ export function ChartTotalHistorico({ orders }: Props) {
       style={{
         width: "100%",
         marginTop: "1rem",
-        marginRight: isMobile ? "0rem" : "1rem",
       }}
     >
       {!totalSales ? (

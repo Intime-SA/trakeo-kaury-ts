@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Timestamp } from "firebase/firestore";
 import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
+import { useMediaQuery } from "@mui/material";
 
 type Order = {
   status: string;
@@ -63,7 +64,7 @@ type Props = {
 
 export function ChartVentasDiarias({ orders }: Props) {
   const [totalSales, setTotalSales] = useState(0);
-
+  const isMobile = useMediaQuery("(max-width:600px)");
   useEffect(() => {
     const calculateTotalSales = () => {
       const calculatedTotalSales = sumSalesToday(orders);
@@ -91,6 +92,7 @@ export function ChartVentasDiarias({ orders }: Props) {
         width: "100%",
         marginTop: "1rem",
         justifyContent: "center",
+        marginRight: isMobile ? "0rem" : "1rem",
       }}
     >
       {" "}
