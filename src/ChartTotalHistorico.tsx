@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Timestamp } from "firebase/firestore";
-import { useMediaQuery } from "@mui/material";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 
@@ -71,7 +70,6 @@ type Props = {
 };
 
 export function ChartTotalHistorico({ orders }: Props) {
-  const isMobile = useMediaQuery("(max-width:600px)");
   const [totalSales, setTotalSales] = useState(0);
 
   useEffect(() => {
