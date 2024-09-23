@@ -22,7 +22,7 @@ import { Timestamp } from "firebase/firestore";
 import { useMediaQuery } from "@mui/material";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
-// Configuración del gráfico
+
 const chartConfig = {
   visitors: {
     label: "Ventas",
@@ -40,7 +40,6 @@ type Order = {
   date: Timestamp;
 };
 
-// Función para sumar todas las ventas
 const sumTotalSales = (orders: Order[]) => {
   let totalSales = 0;
 
@@ -81,7 +80,7 @@ export function ChartTotalHistorico({ orders }: Props) {
       setTotalSales(calculatedTotalSales);
     };
 
-    const timer = setTimeout(calculateTotalSales, 1000); // Simular tiempo de carga
+    const timer = setTimeout(calculateTotalSales, 1000);
 
     return () => clearTimeout(timer);
   }, [orders]);
@@ -154,17 +153,19 @@ export function ChartTotalHistorico({ orders }: Props) {
                           <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-foreground text-4xl font-bold"
+                            className="fill-foreground text-2xl font-bold"
                           >
                             {totalSales.toLocaleString("es-AR", {
                               style: "currency",
                               currency: "ARS",
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
                             })}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
+                            y={(viewBox.cy || 0) + 20}
+                            className="fill-muted-foreground text-sm"
                           >
                             Ventas
                           </tspan>

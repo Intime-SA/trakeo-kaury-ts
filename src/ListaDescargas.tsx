@@ -187,9 +187,9 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           flexDirection: isMobile ? "column" : "row",
         }}
       >
-        <ChartTotalHistorico orders={orders} />
-        <ChartTotalVentas orders={orders} />
         <ChartVentasDiarias orders={orders} />
+        <ChartTotalVentas orders={orders} />
+        <ChartTotalHistorico orders={orders} />
       </div>
       <div
         style={{
