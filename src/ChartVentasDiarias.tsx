@@ -132,7 +132,7 @@ export function ChartVentasDiarias({ orders }: Props) {
                   y="50%"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  className="fill-foreground text-4xl font-bold"
+                  className="fill-foreground text-2xl font-bold"
                 >
                   {totalSales.toLocaleString("es-AR", {
                     style: "currency",

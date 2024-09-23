@@ -40,6 +40,15 @@ interface ChildComponentProps {
 }
 
 const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
+  // Convertir fechas de Firebase a la zona horaria local
+  const convertToLocalTime = (dateString: string) => {
+    const date = new Date(dateString); // Crear objeto Date a partir de la cadena ISO
+    return date.toLocaleDateString("es-ES", {
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
     <Card style={{ marginTop: "1rem" }}>
       <CardHeader>
@@ -70,13 +79,7 @@ const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString("es-ES", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
+                tickFormatter={(value) => convertToLocalTime(value)}
               />
               <ChartTooltip
                 content={<ChartTooltipContent nameKey="orders" />}

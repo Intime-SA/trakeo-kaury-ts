@@ -17,6 +17,7 @@ import { ChartTotalVentas } from "./ChartTotalVentas";
 import { ChartTotalHistorico } from "./ChartTotalHistorico";
 import { ChartVentasDiarias } from "./ChartVentasDiarias";
 import { ChartsMobile } from "./ChartsMobile";
+import { toZonedTime, format } from "date-fns-tz";
 
 export interface DeviceInfo {
   deviceInfo: {
@@ -36,7 +37,7 @@ export interface DeviceInfo {
 
 interface Order {
   id: string;
-  date: Timestamp; // Usar el tipo Timestamp de Firestore
+  date: Timestamp;
   canalVenta: string;
   clienteId: string;
   lastState: string;
@@ -44,15 +45,14 @@ interface Order {
   numberOrder: number;
   status: string;
   total: number;
-  ipAddress: string; // Asegúrate de que la propiedad IP esté presente
-  // Agrega aquí otras propiedades según sea necesario
+  ipAddress: string;
 }
 
 interface ChartData {
-  date: string; // Fecha en formato ISO
+  date: string;
   orders: number;
-  label?: string; // Hacer que sea opcional si no siempre se proporciona
-  uniqueIPs?: number; // Número de IPs únicas
+  label?: string;
+  uniqueIPs?: number;
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
@@ -76,15 +76,21 @@ const TrakeoAlimentosNaturales: React.FC = () => {
       // Filtrar y agrupar por día y IP
       const groupedData = ordersData.reduce(
         (acc: Record<string, { count: number; ipSet: Set<string> }>, order) => {
-          const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
+          // Convertir el Timestamp a la zona horaria de Argentina
+          const argDate = toZonedTime(
+            order.date.toDate(),
+            "America/Argentina/Buenos_Aires"
+          );
+          const date = format(argDate, "yyyy-MM-dd", {
+            timeZone: "America/Argentina/Buenos_Aires",
+          });
 
-          // Inicializar el objeto si no existe
           if (!acc[date]) {
             acc[date] = { count: 0, ipSet: new Set() };
           }
 
-          acc[date].count += 1; // Contar órdenes por día
-          acc[date].ipSet.add(order.ipAddress); // Agregar IP al conjunto
+          acc[date].count += 1;
+          acc[date].ipSet.add(order.ipAddress);
 
           return acc;
         },
@@ -92,7 +98,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
       );
 
       // Convertir a array y filtrar los últimos 30 días
-      const today = new Date();
+      const today = toZonedTime(new Date(), "America/Argentina/Buenos_Aires");
       const lastMonth = new Date(today);
       lastMonth.setDate(today.getDate() - 30);
 
@@ -101,12 +107,12 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         .map((date) => ({
           date,
           orders: groupedData[date].count,
-          uniqueIPs: groupedData[date].ipSet.size, // Contar IPs únicas
+          uniqueIPs: groupedData[date].ipSet.size,
           label: `Órdenes del día ${date}`,
         }))
         .sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        ); // Ordenar por fecha
+        );
 
       setChartData(dataToDisplay);
       setLoading(false);

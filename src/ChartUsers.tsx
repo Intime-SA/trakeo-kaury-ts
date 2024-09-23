@@ -172,7 +172,7 @@ export const ChartUsers: React.FC = () => {
           </ChartContainer>
         )}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
+      <CardFooter className="flex-col items-center gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
           Usuarios agrupados por Provincia
           <TrendingUp className="h-4 w-4" />
