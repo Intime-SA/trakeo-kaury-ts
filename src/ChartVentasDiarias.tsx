@@ -17,8 +17,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { Timestamp } from "firebase/firestore";
+import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 
 type Order = {
   status: string;
@@ -30,7 +31,6 @@ type Order = {
 const sumSalesToday = (orders: Order[]) => {
   let totalSales = 0;
 
-  // Paso 1: Obtener la fecha más reciente
   const lastOrderDate = orders
     .map((order) => order.date.toDate())
     .reduce(
@@ -38,16 +38,14 @@ const sumSalesToday = (orders: Order[]) => {
       new Date(0)
     );
 
-  // Paso 2: Filtrar las órdenes del último día
   const filteredOrders = orders.filter((order) => {
     const orderDate = order.date.toDate();
     orderDate.setHours(0, 0, 0, 0);
-    lastOrderDate.setHours(0, 0, 0, 0); // Comparar solo la fecha, no la hora
+    lastOrderDate.setHours(0, 0, 0, 0);
 
     return orderDate.getTime() === lastOrderDate.getTime();
   });
 
-  // Paso 3: Calcular las ventas totales del último día
   filteredOrders.forEach((order) => {
     const total = parseFloat(order.total.toString());
 
@@ -67,8 +65,14 @@ export function ChartVentasDiarias({ orders }: Props) {
   const [totalSales, setTotalSales] = useState(0);
 
   useEffect(() => {
-    const calculatedTotalSales = sumSalesToday(orders);
-    setTotalSales(calculatedTotalSales);
+    const calculateTotalSales = () => {
+      const calculatedTotalSales = sumSalesToday(orders);
+      setTotalSales(calculatedTotalSales);
+    };
+
+    const timer = setTimeout(calculateTotalSales, 1000); // Simular tiempo de carga
+
+    return () => clearTimeout(timer);
   }, [orders]);
 
   const chartData = [
@@ -83,51 +87,77 @@ export function ChartVentasDiarias({ orders }: Props) {
     <Card
       className="flex flex-col"
       style={{
+        display: "flex",
         width: "100%",
         marginTop: "1rem",
+        justifyContent: "center",
       }}
     >
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Ordenes de venta</CardTitle>
-        <CardDescription>del día de hoy</CardDescription>
-      </CardHeader>
+      {" "}
+      {!totalSales ? (
+        <CardHeader className="flex center items-center pb-0">
+          <SkeletonDemo />
+        </CardHeader>
+      ) : (
+        <CardHeader className="flex center items-center pb-0">
+          <CardTitle>Ordenes de venta</CardTitle>
+          <CardDescription>del día de hoy</CardDescription>
+        </CardHeader>
+      )}
       <CardContent className="flex-1 pb-0">
         <div className="mx-auto aspect-square max-h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadialBarChart
-              data={chartData}
-              startAngle={0}
-              endAngle={250}
-              innerRadius="80%"
-              outerRadius="100%"
-            >
-              <PolarGrid gridType="circle" />
-              <PolarRadiusAxis tick={false} axisLine={false} tickLine={false} />
-              <RadialBar dataKey="value" cornerRadius={10} background />
-              <text
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="fill-foreground text-4xl font-bold"
+          {!totalSales ? (
+            <Skeleton className="h-[250px] w-full rounded-xl" />
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                style={{ width: "100%" }}
+                data={chartData}
+                startAngle={0}
+                endAngle={250}
+                innerRadius="80%"
+                outerRadius="100%"
               >
-                {totalSales.toLocaleString("es-AR", {
-                  style: "currency",
-                  currency: "ARS",
-                })}
-              </text>
-            </RadialBarChart>
-          </ResponsiveContainer>
+                <PolarGrid gridType="circle" />
+                <PolarRadiusAxis
+                  tick={false}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <RadialBar dataKey="value" cornerRadius={10} background />
+                <text
+                  x="50%"
+                  y="50%"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-foreground text-4xl font-bold"
+                >
+                  {totalSales.toLocaleString("es-AR", {
+                    style: "currency",
+                    currency: "ARS",
+                  })}
+                </text>
+              </RadialBarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Total de ventas del día <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Confirmadas y no confirmadas
-        </div>
-      </CardFooter>
+      {!totalSales ? (
+        <CardFooter className="flex-col gap-2 text-sm">
+          <SkeletonPieCard />
+        </CardFooter>
+      ) : (
+        <>
+          <CardFooter className="flex-col gap-2 text-sm">
+            <div className="flex items-center gap-2 font-medium leading-none">
+              Total de ventas del día <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="leading-none text-muted-foreground">
+              Confirmadas y no confirmadas
+            </div>
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 }

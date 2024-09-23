@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import {
   Label,
@@ -19,7 +20,8 @@ import {
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Timestamp } from "firebase/firestore";
 import { useMediaQuery } from "@mui/material";
-
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 // Configuración del gráfico
 const chartConfig = {
   visitors: {
@@ -35,7 +37,7 @@ type Order = {
   status: string;
   lastState: string;
   total: number;
-  date: Timestamp; // Considera que la fecha es un timestamp
+  date: Timestamp;
 };
 
 // Función para sumar todas las ventas
@@ -43,7 +45,7 @@ const sumTotalSales = (orders: Order[]) => {
   let totalSales = 0;
 
   orders.forEach((order) => {
-    const isValidTotal = typeof order.total === "number"; // Verificar que total sea un número
+    const isValidTotal = typeof order.total === "number";
     const isActiveOrder =
       order.status !== "cancelada" &&
       order.status !== "nueva" &&
@@ -58,11 +60,11 @@ const sumTotalSales = (orders: Order[]) => {
       order.lastState == "pagoRecibido";
 
     if ((isActiveOrder || isArchivedOrder) && isValidTotal) {
-      totalSales += order.total; // Sumar si cumple las condiciones
+      totalSales += order.total;
     }
   });
 
-  return totalSales + 474.92;
+  return totalSales;
 };
 
 type Props = {
@@ -71,13 +73,23 @@ type Props = {
 
 export function ChartTotalHistorico({ orders }: Props) {
   const isMobile = useMediaQuery("(max-width:600px)");
-  // Calcular el total de ventas
-  const totalSales = sumTotalSales(orders);
+  const [totalSales, setTotalSales] = useState(0);
+
+  useEffect(() => {
+    const calculateTotalSales = () => {
+      const calculatedTotalSales = sumTotalSales(orders);
+      setTotalSales(calculatedTotalSales);
+    };
+
+    const timer = setTimeout(calculateTotalSales, 1000); // Simular tiempo de carga
+
+    return () => clearTimeout(timer);
+  }, [orders]);
 
   const chartData = [
     {
       browser: "Ventas",
-      visitors: totalSales, // Asignar el total de ventas al gráfico
+      visitors: totalSales,
       fill: "var(--color-safari)",
     },
   ];
@@ -91,76 +103,96 @@ export function ChartTotalHistorico({ orders }: Props) {
         marginRight: isMobile ? "0rem" : "1rem",
       }}
     >
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Ventas Confirmadas</CardTitle>
-        <CardDescription>Historico</CardDescription>
-      </CardHeader>
+      {!totalSales ? (
+        <CardHeader className="items-center pb-0">
+          <SkeletonDemo />
+        </CardHeader>
+      ) : (
+        <CardHeader className="items-center pb-0">
+          <CardTitle>Ventas Confirmadas</CardTitle>
+          <CardDescription>Historico</CardDescription>
+        </CardHeader>
+      )}
+
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          style={{ width: "100%" }}
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <RadialBarChart
-            data={chartData}
-            startAngle={0}
-            endAngle={250}
-            innerRadius={80}
-            outerRadius={110}
+        {!totalSales ? (
+          <div className="mx-auto aspect-square max-h-[250px] flex items-center justify-center">
+            <Skeleton className="h-[250px] w-full rounded-xl" />
+          </div>
+        ) : (
+          <ChartContainer
+            style={{ width: "100%" }}
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[250px]"
           >
-            <PolarGrid
-              gridType="circle"
-              radialLines={false}
-              stroke="none"
-              className="first:fill-muted last:fill-background"
-              polarRadius={[86, 74]}
-            />
-            <RadialBar dataKey="visitors" background cornerRadius={10} />
-            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
+            <RadialBarChart
+              data={chartData}
+              startAngle={0}
+              endAngle={250}
+              innerRadius={80}
+              outerRadius={110}
+            >
+              <PolarGrid
+                gridType="circle"
+                radialLines={false}
+                stroke="none"
+                className="first:fill-muted last:fill-background"
+                polarRadius={[86, 74]}
+              />
+              <RadialBar dataKey="visitors" background cornerRadius={10} />
+              <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-4xl font-bold"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
                         >
-                          {totalSales.toLocaleString("es-AR", {
-                            style: "currency",
-                            currency: "ARS",
-                          })}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Ventas
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </PolarRadiusAxis>
-          </RadialBarChart>
-        </ChartContainer>
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-4xl font-bold"
+                          >
+                            {totalSales.toLocaleString("es-AR", {
+                              style: "currency",
+                              currency: "ARS",
+                            })}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            Ventas
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </PolarRadiusAxis>
+            </RadialBarChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Total de ventas acumuladas <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Ventas total historico (01/04/2024)
-        </div>
-      </CardFooter>
+
+      {!totalSales ? (
+        <CardFooter className="flex-col gap-2 text-sm">
+          <SkeletonPieCard />
+        </CardFooter>
+      ) : (
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Total de ventas acumuladas <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Ventas total historico (01/04/2024)
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }
