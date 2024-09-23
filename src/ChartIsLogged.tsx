@@ -111,7 +111,9 @@ export function ChartIsLogged() {
   }, []);
 
   return (
-    <Card style={{ width: "100%", maxWidth: "450px", marginBottom: "1rem" }}>
+    <Card
+      style={{ maxWidth: "375px", marginBottom: "1rem", marginTop: "1rem" }}
+    >
       <CardHeader>
         <CardTitle>Estado de Sesión de Usuarios</CardTitle>
         <CardDescription>

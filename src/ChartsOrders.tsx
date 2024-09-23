@@ -14,6 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useMediaQuery } from "@mui/material";
 
 // Configuración del gráfico
 const chartConfig = {
@@ -40,7 +41,7 @@ interface ChildComponentProps {
 
 const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
   return (
-    <Card style={{ width: "90vw" }}>
+    <Card style={{ marginTop: "1rem" }}>
       <CardHeader>
         <CardTitle>Órdenes del Último Mes</CardTitle>
         <CardDescription>

@@ -92,7 +92,7 @@ export const ChartUsers: React.FC = () => {
   } satisfies ChartConfig;
 
   return (
-    <Card style={{ width: "100%", maxWidth: "450px", marginBottom: "1rem" }}>
+    <Card style={{ width: "100%", maxWidth: "375px", marginBottom: "1rem" }}>
       <CardHeader className="items-center pb-0">
         <CardTitle>Usuarios por Provincia</CardTitle>
         <CardDescription>

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Timestamp } from "firebase/firestore";
+import { useMediaQuery } from "@mui/material";
 
 // Configuración del gráfico
 const chartConfig = {
@@ -69,6 +70,7 @@ type Props = {
 };
 
 export function ChartTotalHistorico({ orders }: Props) {
+  const isMobile = useMediaQuery("(max-width:600px)");
   // Calcular el total de ventas
   const totalSales = sumTotalSales(orders);
 
@@ -83,7 +85,11 @@ export function ChartTotalHistorico({ orders }: Props) {
   return (
     <Card
       className="flex flex-col"
-      style={{ minWidth: "45vw", margin: "1rem", marginLeft: "1rem" }}
+      style={{
+        width: "50%",
+        margin: "1rem",
+        marginLeft: "1rem",
+      }}
     >
       <CardHeader className="items-center pb-0">
         <CardTitle>Ventas Confirmadas</CardTitle>

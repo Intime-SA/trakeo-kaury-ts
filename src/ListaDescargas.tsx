@@ -16,6 +16,7 @@ import { db } from "./firebaseConfig";
 import { ChartTotalVentas } from "./ChartTotalVentas";
 import { ChartTotalHistorico } from "./ChartTotalHistorico";
 import { ChartVentasDiarias } from "./ChartVentasDiarias";
+import { ChartsMobile } from "./ChartsMobile";
 
 export interface DeviceInfo {
   deviceInfo: {
@@ -50,11 +51,7 @@ interface Order {
 interface ChartData {
   date: string; // Fecha en formato ISO
   orders: number; // Cantidad de órdenes
-  label: string; // Nueva propiedad
-  value: number; // Nueva propiedad (puede ser la misma que orders si así lo decides)
 }
-
-// Define la interfaz para los datos internos
 
 const TrakeoAlimentosNaturales: React.FC = () => {
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
@@ -62,9 +59,6 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   const [orders, setOrders] = React.useState<Order[]>([]);
 
   React.useEffect(() => {
-    // Define la interfaz para los datos del gráfico incluyendo las propiedades necesarias
-
-    // Modifica la transformación de datos en fetchOrders
     const fetchOrders = async () => {
       const querySnapshot = await getDocs(collection(db, "userOrders"));
       const ordersData: Order[] = querySnapshot.docs.map(
@@ -73,7 +67,6 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           id: doc.id,
         })
       ) as Order[];
-
       setOrders(ordersData);
       console.log(ordersData);
 
@@ -97,8 +90,6 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         .map((date) => ({
           date,
           orders: groupedData[date],
-          label: `Orders on ${date}`, // Asignar la propiedad 'label'
-          value: groupedData[date], // Asignar la propiedad 'value'
         }))
         .sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -120,11 +111,11 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   }, [isDarkMode]);
 
   /*   const convertTimestampToDate = (timestamp: Timestamp): string => {
-      return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
-    };
+    return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
+  };
 
-  */
 
+ */
   return (
     <div
       style={{
@@ -147,7 +138,20 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           marginBottom: "2rem",
         }}
       >
-        <div style={{ width: "100%", display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            marginLeft: isMobile ? "0rem" : "5rem",
+          }}
+        >
+          <img
+            src="https://firebasestorage.googleapis.com/v0/b/mayoristakaurymdp.appspot.com/o/Pesta%C3%B1aLogo%2FSinFondoLogo.png?alt=media&token=8a59df40-df50-4c65-8677-43a9fee55622"
+            alt="atlantics.dev"
+            style={{ width: isMobile ? "50px" : "100px" }}
+          />{" "}
+          |
           <h1
             style={{
               marginLeft: isMobile ? "1rem" : "5rem",
@@ -158,14 +162,8 @@ const TrakeoAlimentosNaturales: React.FC = () => {
             }}
           >
             {" "}
-            Seguimiento Usuarios: Kaury
-            <span style={{ marginLeft: "0.9rem" }}>|</span>
+            Estadisticas : <span style={{ fontWeight: "900" }}>Kaury</span>
           </h1>
-          <img
-            src="https://firebasestorage.googleapis.com/v0/b/mayoristakaurymdp.appspot.com/o/Pesta%C3%B1aLogo%2FSinFondoLogo.png?alt=media&token=8a59df40-df50-4c65-8677-43a9fee55622"
-            alt="atlantics.dev"
-            style={{ width: isMobile ? "50px" : "100px" }}
-          />
         </div>
 
         <div style={{ marginRight: isMobile ? "0rem" : "5rem" }}>
@@ -178,6 +176,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
 
       <div
         style={{
+          width: "100vw",
           display: "flex",
           justifyContent: "center",
           flexDirection: isMobile ? "column" : "row",
@@ -187,7 +186,11 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         <ChartTotalVentas orders={orders} />
         <ChartVentasDiarias orders={orders} />
       </div>
-      <div>
+      <div
+        style={{
+          width: "100%",
+        }}
+      >
         <ChartsOrders chartData={chartData} loading={loading} />
         <ChartVisitas />
       </div>
@@ -202,7 +205,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         }}
       >
         <ChartUsers />
-
+        <ChartsMobile />
         <ChartIsLogged />
       </div>
       <div

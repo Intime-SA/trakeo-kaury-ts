@@ -88,7 +88,11 @@ export function ChartTotalVentas({ orders }: Props) {
   return (
     <Card
       className="flex flex-col"
-      style={{ minWidth: "375px", margin: "1rem" }}
+      style={{
+        width: "50%",
+        margin: "1rem",
+        marginLeft: "1rem",
+      }}
     >
       <CardHeader className="items-center pb-0">
         <CardTitle>Ventas confirmadas </CardTitle>
