@@ -50,6 +50,14 @@ interface Order {
 interface ChartData {
   date: string; // Fecha en formato ISO
   orders: number; // Cantidad de órdenes
+  label: string; // Nueva propiedad
+  value: number; // Nueva propiedad (puede ser la misma que orders si así lo decides)
+}
+
+// Define la interfaz para los datos internos
+interface OrderChartData {
+  date: string;
+  orders: number;
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
@@ -58,6 +66,9 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   const [orders, setOrders] = React.useState<Order[]>([]);
 
   React.useEffect(() => {
+    // Define la interfaz para los datos del gráfico incluyendo las propiedades necesarias
+
+    // Modifica la transformación de datos en fetchOrders
     const fetchOrders = async () => {
       const querySnapshot = await getDocs(collection(db, "userOrders"));
       const ordersData: Order[] = querySnapshot.docs.map(
@@ -66,6 +77,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           id: doc.id,
         })
       ) as Order[];
+
       setOrders(ordersData);
       console.log(ordersData);
 
@@ -89,6 +101,8 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         .map((date) => ({
           date,
           orders: groupedData[date],
+          label: `Orders on ${date}`, // Asignar la propiedad 'label'
+          value: groupedData[date], // Asignar la propiedad 'value'
         }))
         .sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -110,15 +124,10 @@ const TrakeoAlimentosNaturales: React.FC = () => {
   }, [isDarkMode]);
 
   /*   const convertTimestampToDate = (timestamp: Timestamp): string => {
-    return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
-  };
+      return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
+    };
 
- */
-
-  interface OrderChartData {
-    date: string; // Fecha en formato ISO
-    orders: number; // Cantidad de órdenes
-  }
+  */
 
   return (
     <div
