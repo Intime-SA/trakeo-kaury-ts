@@ -14,7 +14,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useMediaQuery } from "@mui/material";
 
 // Configuración del gráfico
 const chartConfig = {
@@ -30,8 +29,9 @@ const chartConfig = {
 import { CircularProgress } from "@mui/material";
 
 interface ChartData {
-  label: string; // O cualquier otro campo que esté en los datos de tu gráfico
-  value: number;
+  date: string; // Fecha en formato ISO
+  orders: number;
+  label?: string; // Hacer que sea opcional si no siempre se proporciona
 }
 
 interface ChildComponentProps {

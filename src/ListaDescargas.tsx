@@ -47,10 +47,10 @@ interface Order {
   // Agrega aquí otras propiedades según sea necesario
 }
 
-// Define la interfaz para los datos del gráfico
 interface ChartData {
   date: string; // Fecha en formato ISO
-  orders: number; // Cantidad de órdenes
+  orders: number;
+  label?: string; // Hacer que sea opcional si no siempre se proporciona
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
@@ -90,6 +90,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         .map((date) => ({
           date,
           orders: groupedData[date],
+          label: `Órdenes del día ${date}`, // Asegúrate de incluir el campo `label` si es necesario
         }))
         .sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -116,6 +117,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
 
 
  */
+
   return (
     <div
       style={{
