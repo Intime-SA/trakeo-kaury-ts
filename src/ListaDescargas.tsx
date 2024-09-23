@@ -55,13 +55,9 @@ interface ChartData {
 }
 
 // Define la interfaz para los datos internos
-interface OrderChartData {
-  date: string;
-  orders: number;
-}
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [chartData, setChartData] = React.useState<OrderChartData[]>([]);
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [orders, setOrders] = React.useState<Order[]>([]);
 
