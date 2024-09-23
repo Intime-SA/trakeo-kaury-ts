@@ -18,7 +18,6 @@ import {
 import { collection, getDocs } from "firebase/firestore";
 import { db2 } from "./firebaseConfig";
 
-// Definición del tipo para los datos del gráfico
 type ChartData = {
   dateTime: string;
   ip: string;
@@ -28,26 +27,20 @@ type ChartData = {
   userAgent: string;
 };
 
-// Configuración del gráfico
 const chartConfig = {
   views: {
     label: "Page Views",
   },
 } satisfies ChartConfig;
 
-// Función para filtrar registros duplicados por IP en las últimas 24 horas
 const filterRecentIPs = (data: ChartData[]) => {
-  const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000); // Últimas 24 horas
+  const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const uniqueIPs: Record<string, ChartData> = {};
 
   data.forEach((item) => {
     const recordDate = new Date(item.dateTime);
-
-    // Solo considerar registros en las últimas 24 horas
     if (recordDate > last24Hours) {
       const existingRecord = uniqueIPs[item.ip];
-
-      // Reemplazar si es un registro más reciente para la misma IP
       if (!existingRecord || new Date(existingRecord.dateTime) < recordDate) {
         uniqueIPs[item.ip] = item;
       }
@@ -57,35 +50,45 @@ const filterRecentIPs = (data: ChartData[]) => {
   return Object.values(uniqueIPs);
 };
 
-// Función para contar usuarios por hora (sin repetir IP en las últimas 24h)
 const countUsersByHour = (data: ChartData[]) => {
   const filteredData = filterRecentIPs(data);
-
   const counts: Record<string, { loggedIn: number; notLoggedIn: number }> = {};
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  // Initialize counts for the last 24 hours, including the current hour
+  for (let i = 24; i > 0; i--) {
+    const hour = (currentHour - i + 24) % 24;
+    counts[hour] = { loggedIn: 0, notLoggedIn: 0 };
+  }
 
   filteredData.forEach((item) => {
     const date = new Date(item.dateTime);
-    const hour = date.getHours(); // Solo obtener la hora
+    const hour = date.getHours();
 
-    if (!counts[hour]) {
-      counts[hour] = { loggedIn: 0, notLoggedIn: 0 };
-    }
-
-    if (item.isLogged) {
-      counts[hour].loggedIn += 1; // Aumenta el contador si el usuario está logueado
-    } else {
-      counts[hour].notLoggedIn += 1; // Aumenta el contador si el usuario no está logueado
+    if (counts[hour] !== undefined) {
+      if (item.isLogged) {
+        counts[hour].loggedIn += 1;
+      } else {
+        counts[hour].notLoggedIn += 1;
+      }
     }
   });
 
-  // Transformar el objeto en un array para el gráfico
+  // Transform the object into an array for the chart
   return Object.entries(counts)
     .map(([hour, count]) => ({
-      hour: `${hour}:00`, // Formato "HH:00"
+      hour: `${hour.padStart(2, "0")}:00`,
       loggedIn: count.loggedIn,
       notLoggedIn: count.notLoggedIn,
     }))
-    .sort((a, b) => parseInt(a.hour) - parseInt(b.hour)); // Ordenar por hora
+    .sort((a, b) => {
+      const hourA = parseInt(a.hour);
+      const hourB = parseInt(b.hour);
+      return (
+        ((hourA - currentHour + 24) % 24) - ((hourB - currentHour + 24) % 24)
+      );
+    });
 };
 
 export function ChartVisitas() {
@@ -93,7 +96,7 @@ export function ChartVisitas() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db2, "trakeoKaury")); // Ajusta el nombre de la colección
+      const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
       const data = querySnapshot.docs.map((doc) => doc.data() as ChartData);
       setChartData(data);
     };
@@ -128,6 +131,7 @@ export function ChartVisitas() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              interval={3}
             />
             <Line
               type="monotone"
@@ -146,7 +150,7 @@ export function ChartVisitas() {
                 <ChartTooltipContent
                   className="w-[150px]"
                   nameKey="count"
-                  labelFormatter={(value) => `Hour: ${value}`}
+                  labelFormatter={(value) => `Hora: ${value}`}
                 />
               }
             />
