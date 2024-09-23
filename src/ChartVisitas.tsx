@@ -35,11 +35,35 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-// Función para contar usuarios por hora
-const countUsersByHour = (data: ChartData[]) => {
-  const counts: Record<string, { loggedIn: number; notLoggedIn: number }> = {};
+// Función para filtrar registros duplicados por IP en las últimas 24 horas
+const filterRecentIPs = (data: ChartData[]) => {
+  const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000); // Últimas 24 horas
+  const uniqueIPs: Record<string, ChartData> = {};
 
   data.forEach((item) => {
+    const recordDate = new Date(item.dateTime);
+
+    // Solo considerar registros en las últimas 24 horas
+    if (recordDate > last24Hours) {
+      const existingRecord = uniqueIPs[item.ip];
+
+      // Reemplazar si es un registro más reciente para la misma IP
+      if (!existingRecord || new Date(existingRecord.dateTime) < recordDate) {
+        uniqueIPs[item.ip] = item;
+      }
+    }
+  });
+
+  return Object.values(uniqueIPs);
+};
+
+// Función para contar usuarios por hora (sin repetir IP en las últimas 24h)
+const countUsersByHour = (data: ChartData[]) => {
+  const filteredData = filterRecentIPs(data);
+
+  const counts: Record<string, { loggedIn: number; notLoggedIn: number }> = {};
+
+  filteredData.forEach((item) => {
     const date = new Date(item.dateTime);
     const hour = date.getHours(); // Solo obtener la hora
 

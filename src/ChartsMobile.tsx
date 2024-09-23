@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Pie, PieChart, Label, Sector } from "recharts";
 import { collection, getDocs } from "firebase/firestore";
@@ -16,7 +14,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 interface UserActivityData {
   isMobile: boolean;
-  ip: string; // Asumiendo que cada registro tiene un campo IP
+  ip: string;
 }
 
 const defaultData = [
@@ -29,9 +27,6 @@ const chartConfig = {
   mobile: { label: "Mobile", color: "hsl(var(--chart-1))" },
   desktop: { label: "Desktop", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
-
-// IPs a excluir
-const excludedIPs = ["192.168.1.1", "10.0.0.1"]; // Cambia estos valores según sea necesario
 
 const fetchTrackingData = async (): Promise<UserActivityData[]> => {
   try {
@@ -55,25 +50,37 @@ export function ChartsMobile() {
       try {
         const data = await fetchTrackingData();
 
-        const mappedData = data.reduce(
-          (acc, record) => {
-            const { isMobile, ip } = record;
+        const userCount: { Mobile: number; Desktop: number } = {
+          Mobile: 0,
+          Desktop: 0,
+        };
+        const countedIPs = new Set<string>(); // Conjunto para rastrear IPs contadas
 
-            // Verifica si la IP está en la lista de excluidas
-            if (excludedIPs.includes(ip)) return acc;
+        data.forEach((record) => {
+          const { isMobile, ip } = record;
 
-            if (isMobile) {
-              acc[0].users += 1; // Mobile
-            } else {
-              acc[1].users += 1; // Desktop
-            }
-            return acc;
+          // Solo sumar si la IP no ha sido contada antes
+          if (!countedIPs.has(ip)) {
+            countedIPs.add(ip); // Marca la IP como contada
+            const deviceType = isMobile ? "Mobile" : "Desktop";
+            userCount[deviceType] += 1; // Incrementa el conteo por tipo de dispositivo
+          }
+        });
+
+        const mappedData = [
+          {
+            deviceType: "Mobile",
+            users: userCount.Mobile,
+            fill: "var(--color-mobile)",
           },
-          [...defaultData]
-        );
+          {
+            deviceType: "Desktop",
+            users: userCount.Desktop,
+            fill: "var(--color-desktop)",
+          },
+        ];
 
         setChartData(mappedData);
-        console.log(mappedData);
       } catch (err) {
         console.log(err);
         setError(true);
