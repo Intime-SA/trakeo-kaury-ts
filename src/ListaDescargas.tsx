@@ -44,6 +44,7 @@ interface Order {
   numberOrder: number;
   status: string;
   total: number;
+  ipAddress: string; // Asegúrate de que la propiedad IP esté presente
   // Agrega aquí otras propiedades según sea necesario
 }
 
@@ -51,14 +52,15 @@ interface ChartData {
   date: string; // Fecha en formato ISO
   orders: number;
   label?: string; // Hacer que sea opcional si no siempre se proporciona
+  uniqueIPs?: number; // Número de IPs únicas
 }
 
 const TrakeoAlimentosNaturales: React.FC = () => {
-  const [chartData, setChartData] = React.useState<ChartData[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [orders, setOrders] = React.useState<Order[]>([]);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchOrders = async () => {
       const querySnapshot = await getDocs(collection(db, "userOrders"));
       const ordersData: Order[] = querySnapshot.docs.map(
@@ -67,14 +69,23 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           id: doc.id,
         })
       ) as Order[];
+
       setOrders(ordersData);
       console.log(ordersData);
 
-      // Filtrar y agrupar por día
+      // Filtrar y agrupar por día y IP
       const groupedData = ordersData.reduce(
-        (acc: Record<string, number>, order) => {
+        (acc: Record<string, { count: number; ipSet: Set<string> }>, order) => {
           const date = order.date.toDate().toISOString().split("T")[0]; // Convertir Timestamp a fecha
-          acc[date] = (acc[date] || 0) + 1; // Contar órdenes por día
+
+          // Inicializar el objeto si no existe
+          if (!acc[date]) {
+            acc[date] = { count: 0, ipSet: new Set() };
+          }
+
+          acc[date].count += 1; // Contar órdenes por día
+          acc[date].ipSet.add(order.ipAddress); // Agregar IP al conjunto
+
           return acc;
         },
         {}
@@ -89,8 +100,9 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         .filter((date) => new Date(date) >= lastMonth)
         .map((date) => ({
           date,
-          orders: groupedData[date],
-          label: `Órdenes del día ${date}`, // Asegúrate de incluir el campo `label` si es necesario
+          orders: groupedData[date].count,
+          uniqueIPs: groupedData[date].ipSet.size, // Contar IPs únicas
+          label: `Órdenes del día ${date}`,
         }))
         .sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -102,21 +114,14 @@ const TrakeoAlimentosNaturales: React.FC = () => {
 
     fetchOrders();
   }, []);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const isMobile = useMediaQuery("(max-width:600px)");
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDarkMode);
     localStorage.setItem("theme", isDarkMode ? "dark" : "light");
   }, [isDarkMode]);
-
-  /*   const convertTimestampToDate = (timestamp: Timestamp): string => {
-    return timestamp ? new Date(timestamp.seconds * 1000).toLocaleString() : "";
-  };
-
-
- */
 
   return (
     <div
@@ -157,13 +162,11 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           <h1
             style={{
               marginLeft: isMobile ? "1rem" : "5rem",
-
               fontSize: isMobile ? "0.7rem" : "1.5rem",
               fontWeight: "bold",
               marginRight: "0rem",
             }}
           >
-            {" "}
             Estadisticas : <span style={{ fontWeight: "900" }}>Kaury</span>
           </h1>
         </div>

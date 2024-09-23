@@ -14,37 +14,34 @@ import {
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
-// Interfaz para tipar los datos de Firestore
 interface UserActivityData {
-  isMobile: boolean; // Para capturar otros campos que no estamos usando
+  isMobile: boolean;
+  ip: string; // Asumiendo que cada registro tiene un campo IP
 }
 
-// Simulación de los datos que obtendrás desde la base de datos
 const defaultData = [
   { deviceType: "Mobile", users: 0, fill: "var(--color-mobile)" },
   { deviceType: "Desktop", users: 0, fill: "var(--color-desktop)" },
 ];
 
-// Configuración de los colores y etiquetas del gráfico
 const chartConfig = {
   users: { label: "Users" },
   mobile: { label: "Mobile", color: "hsl(var(--chart-1))" },
   desktop: { label: "Desktop", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
-// Función para obtener los datos desde Firebase Firestore
-async function fetchTrackingData(): Promise<UserActivityData[]> {
+// IPs a excluir
+const excludedIPs = ["192.168.1.1", "10.0.0.1"]; // Cambia estos valores según sea necesario
+
+const fetchTrackingData = async (): Promise<UserActivityData[]> => {
   try {
-    const querySnapshot = await getDocs(collection(db2, "trakeoKaury")); // Colección en Firestore
-    const data = querySnapshot.docs.map(
-      (doc) => doc.data() as UserActivityData
-    );
-    return data;
+    const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
+    return querySnapshot.docs.map((doc) => doc.data() as UserActivityData);
   } catch (error) {
     console.error("Error fetching data:", error);
     return [];
   }
-}
+};
 
 export function ChartsMobile() {
   const [chartData, setChartData] = useState(defaultData);
@@ -58,10 +55,13 @@ export function ChartsMobile() {
       try {
         const data = await fetchTrackingData();
 
-        // Procesa los datos recibidos para adaptarlos al gráfico
         const mappedData = data.reduce(
           (acc, record) => {
-            const { isMobile } = record;
+            const { isMobile, ip } = record;
+
+            // Verifica si la IP está en la lista de excluidas
+            if (excludedIPs.includes(ip)) return acc;
+
             if (isMobile) {
               acc[0].users += 1; // Mobile
             } else {
@@ -73,7 +73,9 @@ export function ChartsMobile() {
         );
 
         setChartData(mappedData);
-      } catch (e) {
+        console.log(mappedData);
+      } catch (err) {
+        console.log(err);
         setError(true);
       } finally {
         setLoading(false);

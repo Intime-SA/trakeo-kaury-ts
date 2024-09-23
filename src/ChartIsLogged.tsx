@@ -82,26 +82,39 @@ export function ChartIsLogged() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtener datos de la colección "trakeoKaury"
         const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
         const rawData: UserActivity[] = querySnapshot.docs.map(
           (doc) => doc.data() as UserActivity
         );
 
-        // Filtrar datos para las últimas 24 horas
         const now = new Date();
         const twentyFourHoursAgo = new Date(
           now.getTime() - 24 * 60 * 60 * 1000
-        ); // 24 horas atrás
+        );
 
         const recentData = rawData.filter((entry) => {
           const entryDate = new Date(entry.dateTime);
           return entryDate >= twentyFourHoursAgo && entryDate <= now;
         });
 
+        // Usar reduce para agrupar por IP
+        const uniqueUsers = recentData.reduce(
+          (acc: Record<string, UserActivity>, entry) => {
+            if (!acc[entry.ip]) {
+              acc[entry.ip] = entry; // Solo agrega la primera entrada por IP
+            }
+            return acc;
+          },
+          {}
+        );
+
+        // Convertir el objeto a un array
+        const processedData = Object.values(uniqueUsers);
+
         // Procesar los datos para agrupar por estado de "isLogged"
-        const processedData = processUserData(recentData);
-        setChartData(processedData);
+        const finalData = processUserData(processedData);
+
+        setChartData(finalData); // Seteamos el estado con los datos procesados
       } catch (error) {
         console.error("Error fetching data from Firestore:", error);
       }
@@ -126,7 +139,7 @@ export function ChartIsLogged() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="status" />
             <YAxis />

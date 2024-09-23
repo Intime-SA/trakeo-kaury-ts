@@ -59,6 +59,9 @@ const chartConfig: ChartConfigType = {
   },
 };
 
+// IPs a excluir
+const excludedIPs = ["192.168.1.1", "10.0.0.1"]; // Cambia estos valores según sea necesario
+
 const generateRandomColor = (): string => {
   return "#" + Math.floor(Math.random() * 16777215).toString(16);
 };
@@ -72,10 +75,8 @@ const generateAbbreviation = (location: string): string => {
   const words = location.split(" ");
 
   if (words.length === 1) {
-    // Si es una sola palabra, toma las dos primeras letras
     return location.substring(0, 2).toUpperCase();
   } else {
-    // Si son múltiples palabras, toma la primera letra de cada una
     return words.map((word) => word[0].toUpperCase()).join("");
   }
 };
@@ -102,7 +103,7 @@ export function ChartTrakeo() {
   }, []);
 
   const processLocationData = (data: UserActivity[]): ChartData[] => {
-    const locationCounts: Record<string, number> = {};
+    const locationCounts: Record<string, Set<string>> = {};
     const now = new Date();
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
@@ -112,23 +113,30 @@ export function ChartTrakeo() {
     });
 
     recentData.forEach((entry) => {
-      const { location } = entry;
+      const { location, ip } = entry;
+
+      // Verifica si la IP está en la lista de excluidas
+      if (excludedIPs.includes(ip)) return;
+
       if (location) {
-        locationCounts[location] = (locationCounts[location] || 0) + 1;
+        if (!locationCounts[location]) {
+          locationCounts[location] = new Set(); // Usar un Set para almacenar IPs únicas
+        }
+        locationCounts[location].add(ip); // Agregar la IP al Set
       }
     });
 
     return Object.entries(locationCounts)
-      .map(([location, count]) => ({
+      .map(([location, ips]) => ({
         location,
         abbreviation: generateAbbreviation(location),
-        count,
+        count: ips.size, // Contar el número de IPs únicas
         fill: generateRandomColor(),
       }))
       .sort((a, b) => b.count - a.count); // Ordenar de mayor a menor
   };
 
-  const chartHeight = Math.max(300, chartData.length * 40); // Altura mínima de 300px, o 40px por cada dato
+  const chartHeight = Math.max(300, chartData.length * 40);
 
   return (
     <Card className="w-full mb-4" style={{ marginTop: "1rem" }}>
@@ -196,7 +204,7 @@ export function ChartTrakeo() {
           <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Mostrando la distribución de usuarios por localidad.
+          Distribución de usuarios únicos por localidad.
         </div>
       </CardFooter>
     </Card>
