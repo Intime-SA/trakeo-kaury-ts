@@ -17,22 +17,21 @@ import {
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC82Xmj6-MfN1lpnmabdANaU4c9ZNjpPh4",
-  authDomain: "mayoristakaurymdp.firebaseapp.com",
-  projectId: "mayoristakaurymdp",
-  storageBucket: "mayoristakaurymdp.appspot.com",
-  messagingSenderId: "1059207647185",
-  appId: "1:1059207647185:web:e5c8298f7225cd48585af0",
-  measurementId: "G-J431P6P08T",
+  apiKey: process.env.VITE_PUBLIC_APIKEY,
+  authDomain: process.env.VITE_PUBLIC_AUTHDOMAIN,
+  projectId: process.env.VITE_PUBLIC_PROJECTID,
+  storageBucket: process.env.VITE_PUBLIC_STORAGEBUCKET,
+  messagingSenderId: process.env.VITE_PUBLIC_MESSAGINGSENDERID,
+  appId: process.env.VITE_PUBLIC_APPID,
 };
 
 const firebaseConfigTrakeo = {
-  apiKey: "AIzaSyCIltOqQVKjLm6m4ifQLp0tfolIV0Wjb8w",
-  authDomain: "trakeo-93a6e.firebaseapp.com",
-  projectId: "trakeo-93a6e",
-  storageBucket: "trakeo-93a6e.appspot.com",
-  messagingSenderId: "900513744928",
-  appId: "1:900513744928:web:dccd3b5e6cd9a68656d445",
+  apiKey: process.env.VITE_PUBLIC_APIKEY_TRAKEO,
+  authDomain: process.env.VITE_PUBLIC_AUTHDOMAIN_TRAKEO,
+  projectId: process.env.VITE_PUBLIC_PROJECTID_TRAKEO,
+  storageBucket: process.env.VITE_PUBLIC_STORAGEBUCKET_TRAKEO,
+  messagingSenderId: process.env.VITE_PUBLIC_MESSAGINGSENDERID_TRAKEO,
+  appId: process.env.VITE_PUBLIC_APPID_TRAKEO,
 };
 
 // Initialize Firebase
