@@ -27,7 +27,6 @@ const chartConfig = {
 };
 
 import { Skeleton } from "./components/ui/skeleton";
-import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 
 interface ChartData {
   date: string; // Fecha en formato ISO
