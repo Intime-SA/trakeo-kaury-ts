@@ -18,7 +18,7 @@ import { ChartVentasDiarias } from "./ChartVentasDiarias";
 import { ChartsMobile } from "./ChartsMobile";
 import { toZonedTime, format } from "date-fns-tz";
 import ChartTrakeo from "./ChartTrakeo";
-import { addHours, subHours } from "date-fns";
+import { addHours } from "date-fns";
 
 export interface DeviceInfo {
   deviceInfo: {
