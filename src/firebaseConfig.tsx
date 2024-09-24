@@ -15,23 +15,23 @@ import {
   persistentMultipleTabManager,
 } from "firebase/firestore";
 
-// Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.VITE_PUBLIC_APIKEY,
-  authDomain: process.env.VITE_PUBLIC_AUTHDOMAIN,
-  projectId: process.env.VITE_PUBLIC_PROJECTID,
-  storageBucket: process.env.VITE_PUBLIC_STORAGEBUCKET,
-  messagingSenderId: process.env.VITE_PUBLIC_MESSAGINGSENDERID,
-  appId: process.env.VITE_PUBLIC_APPID,
+  apiKey: import.meta.env.VITE_PUBLIC_APIKEY,
+  authDomain: import.meta.env.VITE_PUBLIC_AUTHDOMAIN,
+  projectId: import.meta.env.VITE_PUBLIC_PROJECTID,
+  storageBucket: import.meta.env.VITE_PUBLIC_STORAGEBUCKET,
+  messagingSenderId: import.meta.env.VITE_PUBLIC_MESSAGINGSENDERID,
+  appId: import.meta.env.VITE_PUBLIC_APPID,
+  measurementId: "G-J431P6P08T",
 };
 
 const firebaseConfigTrakeo = {
-  apiKey: process.env.VITE_PUBLIC_APIKEY_TRAKEO,
-  authDomain: process.env.VITE_PUBLIC_AUTHDOMAIN_TRAKEO,
-  projectId: process.env.VITE_PUBLIC_PROJECTID_TRAKEO,
-  storageBucket: process.env.VITE_PUBLIC_STORAGEBUCKET_TRAKEO,
-  messagingSenderId: process.env.VITE_PUBLIC_MESSAGINGSENDERID_TRAKEO,
-  appId: process.env.VITE_PUBLIC_APPID_TRAKEO,
+  apiKey: import.meta.env.VITE_PUBLIC_APIKEY_TRAKEO,
+  authDomain: import.meta.env.VITE_PUBLIC_AUTHDOMAIN_TRAKEO,
+  projectId: import.meta.env.VITE_PUBLIC_PROJECTID_TRAKEO,
+  storageBucket: import.meta.env.VITE_PUBLIC_STORAGEBUCKET_TRAKEO,
+  messagingSenderId: import.meta.env.VITE_PUBLIC_MESSAGINGSENDERID_TRAKEO,
+  appId: import.meta.env.VITE_PUBLIC_APPID_TRAKEO,
 };
 
 // Initialize Firebase
