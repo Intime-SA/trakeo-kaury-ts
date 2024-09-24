@@ -14,8 +14,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format, parseISO } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { es } from "date-fns/locale";
 
-// Configuración del gráfico
 const chartConfig = {
   views: {
     label: "Órdenes ",
@@ -26,12 +29,11 @@ const chartConfig = {
   },
 };
 
-import { Skeleton } from "./components/ui/skeleton";
-
 interface ChartData {
-  date: string; // Fecha en formato ISO
+  date: string;
   orders: number;
-  label?: string; // Hacer que sea opcional si no siempre se proporciona
+  label?: string;
+  uniqueIPs?: number;
 }
 
 interface ChildComponentProps {
@@ -41,18 +43,10 @@ interface ChildComponentProps {
 
 const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    date.setDate(date.getDate() + 1); // Add one day to the date
-    return date.toLocaleDateString("es-ES", {
-      month: "short",
-      day: "numeric",
-    });
+    const date = parseISO(dateString);
+    const zonedDate = toZonedTime(date, "America/Argentina/Buenos_Aires");
+    return format(zonedDate, "d MMM", { locale: es });
   };
-
-  const adjustedChartData = chartData.map((item) => ({
-    ...item,
-    adjustedDate: new Date(item.date),
-  }));
 
   return (
     <Card style={{ marginTop: "1rem" }}>
@@ -83,14 +77,14 @@ const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
             className="aspect-auto h-[250px] w-full"
           >
             <BarChart
-              data={adjustedChartData}
+              data={chartData}
               margin={{
                 left: 12,
                 right: 12,
               }}
             >
               <CartesianGrid vertical={false} />
-              <XAxis dataKey="adjustedDate" tickFormatter={formatDate} />
+              <XAxis dataKey="date" tickFormatter={formatDate} />
               <ChartTooltip
                 content={<ChartTooltipContent nameKey="orders" />}
                 cursor={{ fill: "transparent" }}

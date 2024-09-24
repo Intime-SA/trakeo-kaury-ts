@@ -18,6 +18,7 @@ import { ChartVentasDiarias } from "./ChartVentasDiarias";
 import { ChartsMobile } from "./ChartsMobile";
 import { toZonedTime, format } from "date-fns-tz";
 import ChartTrakeo from "./ChartTrakeo";
+import { addHours, subHours } from "date-fns";
 
 export interface DeviceInfo {
   deviceInfo: {
@@ -75,22 +76,36 @@ const TrakeoAlimentosNaturales: React.FC = () => {
 
       // Filtrar y agrupar por día y IP
       const groupedData = ordersData.reduce(
-        (acc: Record<string, { count: number; ipSet: Set<string> }>, order) => {
-          // Convertir el Timestamp a la zona horaria de Argentina
+        (
+          acc: Record<
+            string,
+            { count: number; ipSet: Set<string>; totalSales: number }
+          >,
+          order
+        ) => {
+          // Convertir el Timestamp a UTC, luego a la zona horaria de Argentina
+          const utcDate = order.date.toDate();
+          console.log(utcDate);
+          const buenosAiresDate = addHours(utcDate, 0);
+          console.log(buenosAiresDate); // Restar 2 horas para ajustar a Buenos Aires
           const argDate = toZonedTime(
-            order.date.toDate(),
+            buenosAiresDate,
             "America/Argentina/Buenos_Aires"
           );
+          console.log(argDate);
+
           const date = format(argDate, "yyyy-MM-dd", {
             timeZone: "America/Argentina/Buenos_Aires",
           });
+          console.log(date);
 
           if (!acc[date]) {
-            acc[date] = { count: 0, ipSet: new Set() };
+            acc[date] = { count: 0, ipSet: new Set(), totalSales: 0 };
           }
 
           acc[date].count += 1;
           acc[date].ipSet.add(order.ipAddress);
+          acc[date].totalSales += order.total;
 
           return acc;
         },
@@ -108,6 +123,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           date,
           orders: groupedData[date].count,
           uniqueIPs: groupedData[date].ipSet.size,
+          totalSales: groupedData[date].totalSales,
           label: `Órdenes del día ${date}`,
         }))
         .sort(
