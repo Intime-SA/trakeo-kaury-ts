@@ -1,5 +1,15 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Pie, PieChart, Label, Sector } from "recharts";
+import {
+  Pie,
+  PieChart,
+  Label,
+  Sector,
+  Tooltip,
+  ResponsiveContainer,
+  TooltipProps,
+} from "recharts";
 import { collection, getDocs } from "firebase/firestore";
 import { useMediaQuery } from "@mui/material";
 import { db2 } from "./firebaseConfig";
@@ -11,25 +21,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserActivityData {
   isMobile: boolean;
   ip: string;
-  dateTime: string; // Asegúrate de tener este campo en tus documentos
+  dateTime: string;
 }
 
-const defaultData = [
-  { deviceType: "Mobile", users: 0, fill: "var(--color-mobile)" },
-  { deviceType: "Desktop", users: 0, fill: "var(--color-desktop)" },
+interface ChartData {
+  deviceType: string;
+  usuarios: number;
+  fill: string;
+}
+
+const defaultData: ChartData[] = [
+  { deviceType: "Mobile", usuarios: 0, fill: "var(--color-mobile)" },
+  { deviceType: "Desktop", usuarios: 0, fill: "var(--color-desktop)" },
 ];
 
 const chartConfig = {
-  users: { label: "Users" },
+  usuarios: { label: "Usuarios" },
   mobile: { label: "Mobile", color: "hsl(var(--chart-1))" },
-  desktop: { label: "Desktop", color: "hsl(var(--chart-2))" },
+  desktop: { label: "Computadora", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
 
-// Función para obtener datos desde Firestore
 const fetchTrackingData = async (): Promise<UserActivityData[]> => {
   try {
     const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
@@ -40,19 +56,31 @@ const fetchTrackingData = async (): Promise<UserActivityData[]> => {
   }
 };
 
-// Función para filtrar por las últimas 24 horas
 const filterLast24Hours = (data: UserActivityData[]): UserActivityData[] => {
   const now = new Date();
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
   return data.filter((record) => {
     const recordDate = new Date(record.dateTime);
-    return recordDate >= yesterday; // Filtra los registros que son de las últimas 24 horas
+    return recordDate >= yesterday;
   });
 };
 
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload as ChartData;
+    return (
+      <div className="bg-background p-2 border border-border rounded shadow">
+        <p className="font-bold">{data.deviceType}</p>
+        <p>Usuarios: {data.usuarios}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function ChartsMobile() {
-  const [chartData, setChartData] = useState(defaultData);
+  const [chartData, setChartData] = useState<ChartData[]>(defaultData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -62,36 +90,33 @@ export function ChartsMobile() {
     async function loadData() {
       try {
         const data = await fetchTrackingData();
-
-        // Filtrar los datos para obtener solo los de las últimas 24 horas
         const filteredData = filterLast24Hours(data);
 
         const userCount: { Mobile: number; Desktop: number } = {
           Mobile: 0,
           Desktop: 0,
         };
-        const countedIPs = new Set<string>(); // Conjunto para rastrear IPs contadas
+        const countedIPs = new Set<string>();
 
         filteredData.forEach((record) => {
           const { isMobile, ip } = record;
 
-          // Solo sumar si la IP no ha sido contada antes
           if (!countedIPs.has(ip)) {
-            countedIPs.add(ip); // Marca la IP como contada
+            countedIPs.add(ip);
             const deviceType = isMobile ? "Mobile" : "Desktop";
-            userCount[deviceType] += 1; // Incrementa el conteo por tipo de dispositivo
+            userCount[deviceType] += 1;
           }
         });
 
-        const mappedData = [
+        const mappedData: ChartData[] = [
           {
             deviceType: "Mobile",
-            users: userCount.Mobile,
+            usuarios: userCount.Mobile,
             fill: "var(--color-mobile)",
           },
           {
-            deviceType: "Desktop",
-            users: userCount.Desktop,
+            deviceType: "Computadora",
+            usuarios: userCount.Desktop,
             fill: "var(--color-desktop)",
           },
         ];
@@ -108,10 +133,7 @@ export function ChartsMobile() {
     loadData();
   }, []);
 
-  if (loading) return <p>Loading chart data...</p>;
-  if (error) return <p>Error loading chart data.</p>;
-
-  const totalUsers = chartData.reduce((sum, item) => sum + item.users, 0);
+  const totalusuarios = chartData.reduce((sum, item) => sum + item.usuarios, 0);
 
   return (
     <Card
@@ -123,44 +145,63 @@ export function ChartsMobile() {
       }}
     >
       <CardHeader className="items-center pb-0">
-        <CardTitle>Mobile vs Computadora</CardTitle>
-        <CardDescription>Datos ultimas 24hs</CardDescription>
+        {loading ? (
+          <>
+            <Skeleton
+              className="h-4 w-[150px]"
+              style={{ marginBottom: "2rem" }}
+            />
+          </>
+        ) : (
+          <>
+            <CardTitle>Mobile vs Computadora</CardTitle>
+            <CardDescription>Datos ultimas 24hs</CardDescription>
+          </>
+        )}
       </CardHeader>
+
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]"
-        >
-          <PieChart>
-            <Pie
-              data={chartData}
-              dataKey="users"
-              nameKey="deviceType"
-              innerRadius={60}
-              outerRadius={80}
-              labelLine={false}
-              fill="#8884d8"
-            >
-              {chartData.map((entry, index) => (
-                <Sector
-                  key={`sector-${index}`}
-                  fill={entry.fill}
-                  strokeWidth={5}
-                />
-              ))}
-              <Label
-                value={totalUsers.toLocaleString()}
-                position="center"
-                className="text-3xl font-bold fill-foreground"
-              />
-              <Label
-                value=""
-                position="center"
-                className="text-xs fill-muted-foreground"
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+        {loading ? (
+          <Skeleton className="h-[300px] w-full" />
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[300px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="usuarios"
+                  nameKey="deviceType"
+                  innerRadius={60}
+                  outerRadius={80}
+                  labelLine={false}
+                  fill="#8884d8"
+                >
+                  {chartData.map((entry, index) => (
+                    <Sector
+                      key={`sector-${index}`}
+                      fill={entry.fill}
+                      strokeWidth={5}
+                    />
+                  ))}
+                  <Label
+                    value={totalusuarios.toLocaleString()}
+                    position="center"
+                    className="text-3xl font-bold fill-foreground"
+                  />
+                  <Label
+                    value=""
+                    position="center"
+                    className="text-xs fill-muted-foreground"
+                  />
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

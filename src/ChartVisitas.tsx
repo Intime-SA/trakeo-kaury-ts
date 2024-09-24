@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/chart";
 import { collection, getDocs } from "firebase/firestore";
 import { db2 } from "./firebaseConfig";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ChartData = {
   dateTime: string;
@@ -93,12 +94,19 @@ const countUsersByHour = (data: ChartData[]) => {
 
 export function ChartVisitas() {
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
-      const data = querySnapshot.docs.map((doc) => doc.data() as ChartData);
-      setChartData(data);
+      try {
+        const querySnapshot = await getDocs(collection(db2, "trakeoKaury"));
+        const data = querySnapshot.docs.map((doc) => doc.data() as ChartData);
+        setChartData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -108,6 +116,22 @@ export function ChartVisitas() {
     () => countUsersByHour(chartData),
     [chartData]
   );
+
+  if (isLoading) {
+    return (
+      <Card style={{ marginTop: "1rem" }}>
+        <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+          <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px]" />
+          </div>
+        </CardHeader>
+        <CardContent className="px-2 sm:p-6">
+          <Skeleton className="h-[250px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card style={{ marginTop: "1rem" }}>

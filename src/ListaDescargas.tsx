@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Switch } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import ChartUsers from "./ChartUsers";
-import { ChartTrakeo } from "./ChartTrakeo";
 import { ChartIsLogged } from "./ChartIsLogged";
 import ChartsOrders from "./ChartsOrders";
 import {
@@ -18,6 +17,7 @@ import { ChartTotalHistorico } from "./ChartTotalHistorico";
 import { ChartVentasDiarias } from "./ChartVentasDiarias";
 import { ChartsMobile } from "./ChartsMobile";
 import { toZonedTime, format } from "date-fns-tz";
+import ChartTrakeo from "./ChartTrakeo";
 
 export interface DeviceInfo {
   deviceInfo: {

@@ -19,6 +19,8 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 import { CircularProgress } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
+import { Skeleton } from "./components/ui/skeleton";
+import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 
 interface User {
   datosEnvio?: {
@@ -102,12 +104,27 @@ export const ChartUsers: React.FC = () => {
         marginRight: isMobile ? "0rem" : "1rem",
       }}
     >
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Usuarios por Provincia</CardTitle>
-        <CardDescription>
-          Datos de usuarios agrupados por provincia
-        </CardDescription>
-      </CardHeader>
+      {" "}
+      {loading ? ( // Muestra el loading si aún se están cargando los datos
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "3rem",
+            marginBottom: "3rem",
+          }}
+        >
+          <SkeletonDemo />
+        </div>
+      ) : (
+        <CardHeader className="items-center pb-0">
+          <CardTitle>Usuarios por Provincia</CardTitle>
+          <CardDescription>
+            Datos de usuarios agrupados por provincia
+          </CardDescription>
+        </CardHeader>
+      )}
       <CardContent className="flex-1 pb-0">
         {loading ? ( // Muestra el loading si aún se están cargando los datos
           <div
@@ -119,7 +136,7 @@ export const ChartUsers: React.FC = () => {
               marginBottom: "3rem",
             }}
           >
-            <CircularProgress />
+            <Skeleton className="h-[250px] w-full rounded-xl" />
           </div>
         ) : (
           <ChartContainer
@@ -172,15 +189,21 @@ export const ChartUsers: React.FC = () => {
           </ChartContainer>
         )}
       </CardContent>
-      <CardFooter className="flex-col items-center gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Usuarios agrupados por Provincia
-          <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Cuidado! hay provincias mal escritas...
-        </div>
-      </CardFooter>
+      {loading ? (
+        <CardFooter className="flex-col items-center gap-2 text-sm">
+          <SkeletonPieCard />
+        </CardFooter>
+      ) : (
+        <CardFooter className="flex-col items-center gap-2 text-sm">
+          <div className="flex gap-2 font-medium leading-none">
+            Usuarios agrupados por Provincia
+            <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Cuidado! hay provincias mal escritas...
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };

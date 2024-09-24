@@ -21,12 +21,13 @@ const chartConfig = {
     label: "Órdenes ",
   },
   orders: {
-    label: "Órdenes por Día + ",
+    label: "",
     color: "hsl(var(--chart-1))",
   },
 };
 
-import { CircularProgress } from "@mui/material";
+import { Skeleton } from "./components/ui/skeleton";
+import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
 
 interface ChartData {
   date: string; // Fecha en formato ISO
@@ -40,29 +41,42 @@ interface ChildComponentProps {
 }
 
 const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
-  // Convertir fechas de Firebase a la zona horaria local
-  const convertToLocalTime = (dateString: string) => {
-    const date = new Date(dateString); // Crear objeto Date a partir de la cadena ISO
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1); // Add one day to the date
     return date.toLocaleDateString("es-ES", {
       month: "short",
       day: "numeric",
     });
   };
 
+  const adjustedChartData = chartData.map((item) => ({
+    ...item,
+    adjustedDate: new Date(item.date),
+  }));
+
   return (
     <Card style={{ marginTop: "1rem" }}>
-      <CardHeader>
-        <CardTitle>Órdenes del Último Mes</CardTitle>
-        <CardDescription>
-          Mostrando la cantidad de órdenes por día
-        </CardDescription>
-      </CardHeader>
+      {loading ? (
+        <CardHeader>
+          <Skeleton className="h-8 w-[200px]" />
+          <Skeleton className="h-4 w-[300px]" />
+        </CardHeader>
+      ) : (
+        <CardHeader>
+          <CardTitle>Órdenes del Último Mes</CardTitle>
+          <CardDescription>
+            Mostrando la cantidad de órdenes por día
+          </CardDescription>
+        </CardHeader>
+      )}
+
       <CardContent className="px-2 sm:p-6">
         {loading ? (
           <div
             style={{ width: "100%", display: "flex", justifyContent: "center" }}
           >
-            <CircularProgress />
+            <Skeleton className="h-[250px] w-full rounded-xl" />
           </div>
         ) : (
           <ChartContainer
@@ -70,21 +84,19 @@ const OrdersChart: React.FC<ChildComponentProps> = ({ chartData, loading }) => {
             className="aspect-auto h-[250px] w-full"
           >
             <BarChart
-              data={chartData}
+              data={adjustedChartData}
               margin={{
                 left: 12,
                 right: 12,
               }}
             >
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(value) => convertToLocalTime(value)}
-              />
+              <XAxis dataKey="adjustedDate" tickFormatter={formatDate} />
               <ChartTooltip
                 content={<ChartTooltipContent nameKey="orders" />}
+                cursor={{ fill: "transparent" }}
               />
-              <Bar dataKey="orders" fill="#4a90e2" /> {/* Azul claro */}
+              <Bar dataKey="orders" fill="#4a90e2" isAnimationActive={false} />
             </BarChart>
           </ChartContainer>
         )}
