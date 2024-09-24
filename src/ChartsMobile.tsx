@@ -82,7 +82,6 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
 export function ChartsMobile() {
   const [chartData, setChartData] = useState<ChartData[]>(defaultData);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -124,7 +123,6 @@ export function ChartsMobile() {
         setChartData(mappedData);
       } catch (err) {
         console.log(err);
-        setError(true);
       } finally {
         setLoading(false);
       }

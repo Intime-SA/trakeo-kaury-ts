@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/chart";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebaseConfig";
-import { CircularProgress } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
 import { Skeleton } from "./components/ui/skeleton";
 import { SkeletonDemo, SkeletonPieCard } from "./SkeletonLine";
