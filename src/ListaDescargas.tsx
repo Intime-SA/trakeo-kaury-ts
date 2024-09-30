@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Switch } from "@mui/material";
 import { useMediaQuery } from "@mui/material";
-import ChartUsers from "./ChartUsers";
-import { ChartIsLogged } from "./ChartIsLogged";
+/* import ChartUsers from "./ChartUsers";
+import { ChartIsLogged } from "./ChartIsLogged"; */
 import ChartsOrders from "./ChartsOrders";
 import {
   collection,
@@ -15,9 +15,9 @@ import { db } from "./firebaseConfig";
 import { ChartTotalVentas } from "./ChartTotalVentas";
 import { ChartTotalHistorico } from "./ChartTotalHistorico";
 import { ChartVentasDiarias } from "./ChartVentasDiarias";
-import { ChartsMobile } from "./ChartsMobile";
+/* import { ChartsMobile } from "./ChartsMobile"; */
 import { toZonedTime, format } from "date-fns-tz";
-import ChartTrakeo from "./ChartTrakeo";
+/* import ChartTrakeo from "./ChartTrakeo"; */
 import { addHours } from "date-fns";
 
 export interface DeviceInfo {
@@ -221,7 +221,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         <ChartsOrders chartData={chartData} loading={loading} />
         <ChartVisitas />
       </div>
-      <div
+      {/*       <div
         style={{
           width: "100%",
           display: "flex",
@@ -232,7 +232,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
         <ChartUsers />
         <ChartsMobile />
         <ChartIsLogged />
-      </div>
+      </div> */}
       <div
         style={{
           display: "flex",
@@ -241,7 +241,7 @@ const TrakeoAlimentosNaturales: React.FC = () => {
           width: "100%",
         }}
       >
-        <ChartTrakeo />
+        {/*  <ChartTrakeo /> */}
       </div>
     </div>
   );
